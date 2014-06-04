@@ -25,38 +25,54 @@ Currently supported only webkit browsers.
 
 ```html
 <div class="cuvr-view">
-	<div class="cuvr-cube">
-		<div class="cuvr-face front">
-			Front contents here
-		</div>
-		<div class="cuvr-face right">
-			Right contents here
-		</div>
-		<div class="cuvr-face back">
-			Back contents here
-		</div>
-		<div class="cuvr-face left">
-			Left contents here
-		</div>
-		<div class="cuvr-face top">
-			Top contents here
-		</div>
-		<div class="cuvr-face bottom">
-			Bottom contents here
-		</div>
-	</div>
+  <div class="cuvr-cube">
+    <div class="cuvr-face front">
+      Front contents here
+    </div>
+    <div class="cuvr-face right">
+      Right contents here
+    </div>
+    <div class="cuvr-face back">
+      Back contents here
+    </div>
+    <div class="cuvr-face left">
+      Left contents here
+    </div>
+    <div class="cuvr-face top">
+      Top contents here
+    </div>
+    <div class="cuvr-face bottom">
+      Bottom contents here
+    </div>
+  </div>
 </div>
 ```
 
 ### 4. Call CuVR constructor
 
-```JavaScript		
+```JavaScript
 var cuvr = new CuVR({
-	cubeSize : 720
+  // this is rendered cube size (px) 
+  cubeSize : 720
 });
 ```
 
 ## API
+
+### Constructor options
+
+| Property          | Description | Type       | Default
+| --------          | ----------- | ----       | -------
+| updateInterval    | how often update viewport rotateX & rotateY | Number | 100
+| cubeSize          | size of cube faces       | Number | Math.min(window.innerWidth,window.innerHeight)  
+| scrollSensitivity | amount of scroll by mouse and touch control. if value is set to 1.0 cube rotates 360 degrees with mouse moving from left/top edge to right/bottom edge. | Number | 0.5
+| mouse             | enable mouse control     | Boolean | true
+| touch             | enable touch control     | Boolean | true
+| keyboard          | enable keyboard control  | Boolean | true
+| sensor            | enable sensor control (uses deviceorientation event) | Boolean | false
+| horizontalScroll  | enable horizontal scroll | Boolean | true
+| verticalScroll    | enable vertical scroll   | Boolean | true
+| cssTransition     | enable css transition    | Boolean | true
 
 ### enableControl()
 
