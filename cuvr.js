@@ -16,28 +16,20 @@ function CuVR(opts) {
   this.disableControl = disableControl;
   this.rotateX = 0;
   this.rotateY = 0;
+  this.verticalScroll = opts.verticalScroll;
+  this.horizontalScroll = opts.horizontalScroll;
+  this.setCubeSize = setCubeSize;
 
   // private variables
-  var cubeSizeHalf = opts.cubeSize / 2;
-  var prevX = prevY = -1;
   var self = this;
+  var cubeSizeHalf;
+  var prevX = prevY = -1;
   var root = opts.root && document.querySelector(opts.root) || document;
   var view = root.querySelector('.cuvr-view');
   var cube = root.querySelector('.cuvr-cube');
 
   // apply styles
-  view.style.width = view.style.height = opts.cubeSize + 'px';
-  view.style.webkitPerspective = cubeSizeHalf + 'px';
-
-  cube.style.width = cube.style.height = opts.cubeSize + 'px';
-  cube.style.webkitTransform = 'translateZ(' + cubeSizeHalf + 'px) rotateX(0deg) rotateY(0deg)';
-
-  root.querySelector('.cuvr-cube .front').style.webkitTransform = 'translateZ(' + -cubeSizeHalf + 'px)';
-  root.querySelector('.cuvr-cube .right').style.webkitTransform = 'rotateY(-90deg) translateZ(' + -cubeSizeHalf + 'px)';
-  root.querySelector('.cuvr-cube .back').style.webkitTransform = 'rotateY(180deg) translateZ(' + -cubeSizeHalf + 'px)';
-  root.querySelector('.cuvr-cube .left').style.webkitTransform = 'rotateY(90deg) translateZ(' + -cubeSizeHalf + 'px)';
-  root.querySelector('.cuvr-cube .top').style.webkitTransform = 'rotateX(-90deg) translateZ(' + -cubeSizeHalf + 'px)';
-  root.querySelector('.cuvr-cube .bottom').style.webkitTransform = 'rotateX(90deg) translateZ(' + -cubeSizeHalf + 'px)';
+  setCubeSize(opts.cubeSize);
 
   // anchor tag touch support
   Array.prototype.forEach.call(root.querySelectorAll('a'), function(a) {
@@ -59,6 +51,25 @@ function CuVR(opts) {
     setTimeout(function() {
       cube.style.transitionDuration = opts.updateInterval + 'ms';
     }, opts.updateInterval);
+  }
+
+  /**
+   * Set cube size.
+   */
+  function setCubeSize(size) {
+    cubeSizeHalf = size / 2;
+    view.style.width = view.style.height = size + 'px';
+    view.style.webkitPerspective = cubeSizeHalf + 'px';
+
+    cube.style.width = cube.style.height = size + 'px';
+    cube.style.webkitTransform = 'translateZ(' + cubeSizeHalf + 'px) rotateX(0deg) rotateY(0deg)';
+
+    root.querySelector('.cuvr-cube .front').style.webkitTransform = 'translateZ(' + -cubeSizeHalf + 'px)';
+    root.querySelector('.cuvr-cube .right').style.webkitTransform = 'rotateY(-90deg) translateZ(' + -cubeSizeHalf + 'px)';
+    root.querySelector('.cuvr-cube .back').style.webkitTransform = 'rotateY(180deg) translateZ(' + -cubeSizeHalf + 'px)';
+    root.querySelector('.cuvr-cube .left').style.webkitTransform = 'rotateY(90deg) translateZ(' + -cubeSizeHalf + 'px)';
+    root.querySelector('.cuvr-cube .top').style.webkitTransform = 'rotateX(-90deg) translateZ(' + -cubeSizeHalf + 'px)';
+    root.querySelector('.cuvr-cube .bottom').style.webkitTransform = 'rotateX(90deg) translateZ(' + -cubeSizeHalf + 'px)';
   }
 
   /**
@@ -152,13 +163,13 @@ function CuVR(opts) {
     var y = e.y || e.changedTouches && e.changedTouches[0].clientY || 0;
 
     if (prevX !== -1 && prevY !== -1) {
-      if (opts.horizontalScroll) {
+      if (self.horizontalScroll) {
         var dx = x - prevX;
         dx = dx / opts.cubeSize * 360 * opts.scrollSensitivity;
         self.rotateY -= dx;
       }
 
-      if (opts.verticalScroll) {
+      if (self.verticalScroll) {
         var dy = y - prevY;
         dy = dy / opts.cubeSize * 360 * opts.scrollSensitivity;
         self.rotateX += dy;

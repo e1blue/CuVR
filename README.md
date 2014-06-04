@@ -94,6 +94,15 @@ cuvr.disableControl('keyboard');
 cuvr.disableControl('sensor');
 ```
 
+### setCubeSize(size)
+
+```JavaScript
+// set cube size to 50% but limit up to 500px
+function onResize(){
+  cuvr.setCubeSize(Math.min(500, window.innerWidth / 2));
+}
+```
+
 ### rotateX
 
 ```JavaScript
@@ -112,6 +121,26 @@ cuvr.rotateY = 80;
 
 // get
 var r = cuvr.rotateY;
+```
+
+### verticalScroll
+
+```JavaScript
+// set
+cuvr.verticalScroll = false;
+
+// get
+var vs = cuvr.verticalScroll;
+```
+
+### horizontalScroll
+
+```JavaScript
+// set
+cuvr.horizontalScroll = false;
+
+// get
+var hs = cuvr.horizontalScroll;
 ```
 
 ## License
