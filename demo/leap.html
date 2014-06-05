@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+		<title>Cubemap</title>
+		<link rel="stylesheet" href="./normalize.css" type="text/css" />
+		<link rel="stylesheet" href="../cuvr.css" type="text/css"/>
+		<style type="text/css">
+			.cuvr-face.front {
+				background-image: url('./img/bg1.png')
+			}
+
+			.cuvr-face.right {
+				background-image: url('./img/bg2.png')
+			}
+
+			.cuvr-face.back {
+				background-image: url('./img/bg3.png')
+			}
+
+			.cuvr-face.left {
+				background-image: url('./img/bg4.png')
+			}
+
+			.cuvr-face.top {
+				background-image: url('./img/bg5.png')
+			}
+
+			.cuvr-face.bottom {
+				background-image: url('./img/bg6.png')
+			}
+		</style>
+	</head>
+	<body>
+		<div class="cuvr-view">
+			<div class="cuvr-cube">
+				<div class="cuvr-face front"></div>
+				<div class="cuvr-face right"></div>
+				<div class="cuvr-face back"></div>
+				<div class="cuvr-face left"></div>
+				<div class="cuvr-face top"></div>
+				<div class="cuvr-face bottom"></div>
+			</div>
+		</div>
+		<script type="text/javascript" src="../cuvr.js"></script>
+		<script src="//js.leapmotion.com/leap-0.6.0.min.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			var cuvr = new CuVR({
+				updateInterval : 50
+			});
+
+			var ax = 0, ay = 0, vx = 0, vy = 0, fps = 0, sensitivity = 0.1;
+			var controller = Leap.loop({
+				enableGestures : true
+			}, function(frame) {
+				fps = frame.currentFrameRate;
+				frame.gestures.forEach(handleGesture);
+
+				vy += ay;
+				vx += ax;
+
+				vy *= 0.9;
+				vx *= 0.9;
+
+				if (vy * vy < 0.00001)
+					vy = 0;
+
+				cuvr.rotateY += vy;
+
+				if (vx * vx < 0.00001)
+					vx = 0;
+
+				cuvr.rotateX += vx;
+			});
+
+			function handleGesture(gesture) {
+				switch(gesture.type) {
+					case 'swipe':
+						switch(gesture.state) {
+							case 'update':
+								ax = gesture.direction[1] * gesture.speed * fps / 1000 * sensitivity;
+								ay = gesture.direction[0] * gesture.speed * fps / 1000 * sensitivity;
+								break;
+							case 'stop':
+								ay = 0;
+								ax = 0;
+								break;
+						}
+						break;
+				}
+			}
+		</script>
+	</body>
+</html>
