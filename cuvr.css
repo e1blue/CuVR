@@ -5,9 +5,11 @@
 
 .cuvr-cube {
 	-webkit-transform-style: preserve-3d;
-	-webkit-transition-timing-function: linear;
 	-moz-transform-style: preserve-3d;
+	transform-style: preserve-3d;
+	-webkit-transition-timing-function: linear;
 	-moz-transition-timing-function: linear;
+	transition-timing-function: linear;
 }
 
 .cuvr-face {

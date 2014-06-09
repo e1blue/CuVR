@@ -43,7 +43,7 @@ function CuVR(opts) {
 
   // update view matrix on every updateInterval millis.
   setInterval(function() {
-    cube.style.webkitTransform = 'translateZ(' + cubeSizeHalf + 'px) rotateX(' + self.rotateX.toFixed(2) + 'deg) rotateY(' + self.rotateY.toFixed(2) + 'deg)';
+    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf + 'px) rotateX(' + self.rotateX.toFixed(2) + 'deg) rotateY(' + self.rotateY.toFixed(2) + 'deg)');
   }, opts.updateInterval);
 
   // enable CSS transition
@@ -59,17 +59,17 @@ function CuVR(opts) {
   function setCubeSize(size) {
     cubeSizeHalf = size / 2;
     view.style.width = view.style.height = size + 'px';
-    view.style.webkitPerspective = cubeSizeHalf + 'px';
+    setStyle(view, 'perspective', cubeSizeHalf + 'px');
 
     cube.style.width = cube.style.height = size + 'px';
-    cube.style.webkitTransform = 'translateZ(' + cubeSizeHalf + 'px) rotateX(0deg) rotateY(0deg)';
+    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf + 'px) rotateX(0deg) rotateY(0deg)');
 
-    root.querySelector('.cuvr-cube .front').style.webkitTransform = 'translateZ(' + -cubeSizeHalf + 'px)';
-    root.querySelector('.cuvr-cube .right').style.webkitTransform = 'rotateY(-90deg) translateZ(' + -cubeSizeHalf + 'px)';
-    root.querySelector('.cuvr-cube .back').style.webkitTransform = 'rotateY(180deg) translateZ(' + -cubeSizeHalf + 'px)';
-    root.querySelector('.cuvr-cube .left').style.webkitTransform = 'rotateY(90deg) translateZ(' + -cubeSizeHalf + 'px)';
-    root.querySelector('.cuvr-cube .top').style.webkitTransform = 'rotateX(-90deg) translateZ(' + -cubeSizeHalf + 'px)';
-    root.querySelector('.cuvr-cube .bottom').style.webkitTransform = 'rotateX(90deg) translateZ(' + -cubeSizeHalf + 'px)';
+    setStyle(root.querySelector('.cuvr-cube .front'), 'transform', 'translateZ(' + -cubeSizeHalf + 'px)');
+    setStyle(root.querySelector('.cuvr-cube .right'), 'transform','rotateY(-90deg) translateZ(' + -cubeSizeHalf + 'px)');
+    setStyle(root.querySelector('.cuvr-cube .back'), 'transform', 'rotateY(180deg) translateZ(' + -cubeSizeHalf + 'px)');
+    setStyle(root.querySelector('.cuvr-cube .left'), 'transform', 'rotateY(90deg) translateZ(' + -cubeSizeHalf + 'px)');
+    setStyle(root.querySelector('.cuvr-cube .top'), 'transform', 'rotateX(-90deg) translateZ(' + -cubeSizeHalf + 'px)');
+    setStyle(root.querySelector('.cuvr-cube .bottom'), 'transform', 'rotateX(90deg) translateZ(' + -cubeSizeHalf + 'px)');
   }
 
   /**
@@ -159,8 +159,8 @@ function CuVR(opts) {
 
   function onmove(e) {
     // normalize mouse and touch event
-    var x = e.x || e.changedTouches && e.changedTouches[0].clientX || 0;
-    var y = e.y || e.changedTouches && e.changedTouches[0].clientY || 0;
+    var x = e.clientX || e.changedTouches && e.changedTouches[0].clientX || 0;
+    var y = e.clientY || e.changedTouches && e.changedTouches[0].clientY || 0;
 
     if (prevX !== -1 && prevY !== -1) {
       if (self.horizontalScroll) {
@@ -270,5 +270,13 @@ function CuVR(opts) {
       }
     }
     return dst;
+  }
+
+  function setStyle(elm, name, value) {
+    var capitalized = name.substr(0, 1).toUpperCase() + name.substr(1);
+    ['webkit', 'moz'].forEach(function(prefix) {
+      elm.style[prefix + capitalized] = value;
+    });
+    elm.style[name] = value;
   }
 }
