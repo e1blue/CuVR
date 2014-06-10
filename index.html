@@ -3,10 +3,14 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
-		<title>Cubemap</title>
+		<title>CuVR sample</title>
 		<link rel="stylesheet" href="./normalize.css" type="text/css" />
 		<link rel="stylesheet" href="./cuvr.css" type="text/css"/>
 		<style type="text/css">
+			.cuvr-view {
+				margin: auto;
+			}
+
 			.cuvr-face.front {
 				background-image: url('./img/bg1.png')
 			}
@@ -69,39 +73,7 @@
 		</div>
 		<script type="text/javascript" src="./cuvr.js"></script>
 		<script type="text/javascript" charset="utf-8">
-			var cuvr = new CuVR(
-			// options (default values)
-			{
-				// how often update viewport rotateX & rotateY
-				// updateInterval : 100,
-
-				// size of cube faces
-				// cubeSize : Math.min(window.innerWidth,window.innerHeight),
-
-				// amount of scroll by mouse and touch control. if value is set to 1.0 cube rotates 360 degrees with mouse moving from left/top edge to right/bottom edge.
-				// scrollSensitivity : 0.5,
-
-				// enable mouse control
-				// mouse: true,
-				
-				// enable touch control
-				// touch: true,
-				
-				// TODO enable keyboard control
-				// keyboard: true,
-				
-				// enable sensor control (uses deviceorientation event)
-				// sensor: false,
-				
-				// enable horizontal scroll
-				// horizontalScroll: true,
-				
-				// enable vertical scroll
-				// verticalScroll: true,
-				
-				// enable css transition.
-				// cssTransition: true
-			});
+			var cuvr = new CuVR();
 		</script>
 	</body>
 </html>

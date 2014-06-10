@@ -1,3 +1,6 @@
+/*
+ * CuVR (c) 2014 eje inc. http://www.eje-c.com License: MIT
+ */
 function CuVR(opts) {
   opts = extend({
     updateInterval: 100,
@@ -16,33 +19,44 @@ function CuVR(opts) {
   this.disableControl = disableControl;
   this.rotateX = 0;
   this.rotateY = 0;
+  this.verticalScroll = opts.verticalScroll;
+  this.horizontalScroll = opts.horizontalScroll;
+  this.setCubeSize = setCubeSize;
+  this.look = look;
 
   // private variables
-  var cubeSizeHalf = opts.cubeSize / 2;
-  var prevX = prevY = -1;
   var self = this;
+  var cubeSizeHalf;
+  var prevX = prevY = -1;
   var root = opts.root && document.querySelector(opts.root) || document;
   var view = root.querySelector('.cuvr-view');
   var cube = root.querySelector('.cuvr-cube');
 
-  // apply styles
-  view.style.width = view.style.height = opts.cubeSize + 'px';
-  view.style.webkitPerspective = cubeSizeHalf + 'px';
+  // fullscreen option
+  if (!!opts.fullscreen) {
+    setCubeSizeToFullscreen();
+    window.addEventListener('resize', setCubeSizeToFullscreen);
 
-  cube.style.width = cube.style.height = opts.cubeSize + 'px';
-  cube.style.webkitTransform = 'translateZ(' + cubeSizeHalf + 'px) rotateX(0deg) rotateY(0deg)';
-
-  root.querySelector('.cuvr-cube .front').style.webkitTransform = 'translateZ(' + -cubeSizeHalf + 'px)';
-  root.querySelector('.cuvr-cube .right').style.webkitTransform = 'rotateY(-90deg) translateZ(' + -cubeSizeHalf + 'px)';
-  root.querySelector('.cuvr-cube .back').style.webkitTransform = 'rotateY(180deg) translateZ(' + -cubeSizeHalf + 'px)';
-  root.querySelector('.cuvr-cube .left').style.webkitTransform = 'rotateY(90deg) translateZ(' + -cubeSizeHalf + 'px)';
-  root.querySelector('.cuvr-cube .top').style.webkitTransform = 'rotateX(-90deg) translateZ(' + -cubeSizeHalf + 'px)';
-  root.querySelector('.cuvr-cube .bottom').style.webkitTransform = 'rotateX(90deg) translateZ(' + -cubeSizeHalf + 'px)';
+    // prevent scroll with mouse wheel
+    view.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  } else {
+    setCubeSize(opts.cubeSize);
+  }
 
   // anchor tag touch support
   Array.prototype.forEach.call(root.querySelectorAll('a'), function(a) {
+    // if user taps <a> trigger click event
     a.ontouchstart = function(e) {
-      a.click();
+      a.ontouchend = function(e) {
+        a.click();
+      };
+
+      setTimeout(function() {
+        a.ontouchend = null;
+      }, 200);
     };
   });
 
@@ -51,7 +65,7 @@ function CuVR(opts) {
 
   // update view matrix on every updateInterval millis.
   setInterval(function() {
-    cube.style.webkitTransform = 'translateZ(' + cubeSizeHalf + 'px) rotateX(' + self.rotateX.toFixed(2) + 'deg) rotateY(' + self.rotateY.toFixed(2) + 'deg)';
+    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf + 'px) rotateX(' + self.rotateX.toFixed(2) + 'deg) rotateY(' + self.rotateY.toFixed(2) + 'deg)');
   }, opts.updateInterval);
 
   // enable CSS transition
@@ -59,6 +73,39 @@ function CuVR(opts) {
     setTimeout(function() {
       cube.style.transitionDuration = opts.updateInterval + 'ms';
     }, opts.updateInterval);
+  }
+
+  /**
+   * Set cube size.
+   */
+  function setCubeSize(size) {
+    cubeSizeHalf = size / 2 - 1;
+    view.style.width = view.style.height = size + 'px';
+    setStyle(view, 'perspective', cubeSizeHalf + 'px');
+
+    cube.style.width = cube.style.height = size + 'px';
+    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf + 'px) rotateX(0deg) rotateY(0deg)');
+
+    setStyle(root.querySelector('.cuvr-cube .front'), 'transform', 'translateZ(' + -cubeSizeHalf + 'px)');
+    setStyle(root.querySelector('.cuvr-cube .right'), 'transform', 'rotateY(-90deg) translateZ(' + -cubeSizeHalf + 'px)');
+    setStyle(root.querySelector('.cuvr-cube .back'), 'transform', 'rotateY(180deg) translateZ(' + -cubeSizeHalf + 'px)');
+    setStyle(root.querySelector('.cuvr-cube .left'), 'transform', 'rotateY(90deg) translateZ(' + -cubeSizeHalf + 'px)');
+    setStyle(root.querySelector('.cuvr-cube .top'), 'transform', 'rotateX(-90deg) translateZ(' + -cubeSizeHalf + 'px)');
+    setStyle(root.querySelector('.cuvr-cube .bottom'), 'transform', 'rotateX(90deg) translateZ(' + -cubeSizeHalf + 'px)');
+  }
+
+  /**
+   * Set cube size to fill entire window and set additional styles to view
+   * element and its parent.
+   */
+  function setCubeSizeToFullscreen() {
+    var size = Math.max(window.innerWidth, window.innerHeight);
+    var l = (window.innerWidth - size) * 0.5;
+    var t = (window.innerHeight - size) * 0.5;
+    view.style.left = l + 'px';
+    view.style.top = t + 'px';
+    view.parentNode.style.overflow = 'hidden';
+    setCubeSize(size);
   }
 
   /**
@@ -148,17 +195,17 @@ function CuVR(opts) {
 
   function onmove(e) {
     // normalize mouse and touch event
-    var x = e.x || e.changedTouches && e.changedTouches[0].clientX || 0;
-    var y = e.y || e.changedTouches && e.changedTouches[0].clientY || 0;
+    var x = e.clientX || e.changedTouches && e.changedTouches[0].clientX || 0;
+    var y = e.clientY || e.changedTouches && e.changedTouches[0].clientY || 0;
 
     if (prevX !== -1 && prevY !== -1) {
-      if (opts.horizontalScroll) {
+      if (self.horizontalScroll) {
         var dx = x - prevX;
         dx = dx / opts.cubeSize * 360 * opts.scrollSensitivity;
         self.rotateY -= dx;
       }
 
-      if (opts.verticalScroll) {
+      if (self.verticalScroll) {
         var dy = y - prevY;
         dy = dy / opts.cubeSize * 360 * opts.scrollSensitivity;
         self.rotateX += dy;
@@ -259,5 +306,42 @@ function CuVR(opts) {
       }
     }
     return dst;
+  }
+
+  function setStyle(elm, name, value) {
+    var capitalized = name.substr(0, 1).toUpperCase() + name.substr(1);
+    ['webkit', 'moz'].forEach(function(prefix) {
+      elm.style[prefix + capitalized] = value;
+    });
+    elm.style[name] = value;
+  }
+
+  function look(to) {
+    switch (to) {
+    case 'front':
+      self.rotateX = 0;
+      self.rotateY = 0;
+      break;
+    case 'right':
+      self.rotateX = 0;
+      self.rotateY = 90;
+      break;
+    case 'back':
+      self.rotateX = 0;
+      self.rotateY = 180;
+      break;
+    case 'left':
+      self.rotateX = 0;
+      self.rotateY = 270;
+      break;
+    case 'top':
+      self.rotateX = 90;
+      self.rotateY = 0;
+      break;
+    case 'bottom':
+      self.rotateX = -90;
+      self.rotateY = 0;
+      break;
+    }
   }
 }
