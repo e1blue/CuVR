@@ -38,8 +38,15 @@ function CuVR(opts) {
 
   // anchor tag touch support
   Array.prototype.forEach.call(root.querySelectorAll('a'), function(a) {
+    // if user taps <a> trigger click event
     a.ontouchstart = function(e) {
-      a.click();
+      a.ontouchend = function(e) {
+        a.click();
+      };
+
+      setTimeout(function() {
+        a.ontouchend = null;
+      }, 200);
     };
   });
 
@@ -76,9 +83,10 @@ function CuVR(opts) {
     setStyle(root.querySelector('.cuvr-cube .top'), 'transform', 'rotateX(-90deg) translateZ(' + -cubeSizeHalf + 'px)');
     setStyle(root.querySelector('.cuvr-cube .bottom'), 'transform', 'rotateX(90deg) translateZ(' + -cubeSizeHalf + 'px)');
   }
-  
+
   /**
-   * Set cube size to fill entire window and set additional styles to view element and its parent.
+   * Set cube size to fill entire window and set additional styles to view
+   * element and its parent.
    */
   function setCubeSizeToFullscreen() {
     var size = Math.max(window.innerWidth, window.innerHeight);
