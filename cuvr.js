@@ -57,7 +57,7 @@ function CuVR(opts) {
    * Set cube size.
    */
   function setCubeSize(size) {
-    cubeSizeHalf = size / 2;
+    cubeSizeHalf = size / 2 - 1;
     view.style.width = view.style.height = size + 'px';
     setStyle(view, 'perspective', cubeSizeHalf + 'px');
 
