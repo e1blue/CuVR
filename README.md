@@ -115,9 +115,18 @@ cuvr.disableControl('sensor');
 
 ```JavaScript
 // set cube size to 50% but limit up to 500px
-function onResize(){
-  cuvr.setCubeSize(Math.min(500, window.innerWidth / 2));
-}
+cuvr.setCubeSize(Math.min(500, window.innerWidth / 2));
+```
+
+### look(to)
+
+```JavaScript
+cuvr.look('front');
+cuvr.look('right');
+cuvr.look('back');
+cuvr.look('left');
+cuvr.look('top');
+cuvr.look('bottom');
 ```
 
 ### rotateX

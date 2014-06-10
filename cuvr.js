@@ -1,6 +1,5 @@
 /*
- * CuVR (c) 2014 eje inc. http://www.eje-c.com
- * License: MIT
+ * CuVR (c) 2014 eje inc. http://www.eje-c.com License: MIT
  */
 function CuVR(opts) {
   opts = extend({
@@ -23,6 +22,7 @@ function CuVR(opts) {
   this.verticalScroll = opts.verticalScroll;
   this.horizontalScroll = opts.horizontalScroll;
   this.setCubeSize = setCubeSize;
+  this.look = look;
 
   // private variables
   var self = this;
@@ -314,5 +314,34 @@ function CuVR(opts) {
       elm.style[prefix + capitalized] = value;
     });
     elm.style[name] = value;
+  }
+
+  function look(to) {
+    switch (to) {
+    case 'front':
+      self.rotateX = 0;
+      self.rotateY = 0;
+      break;
+    case 'right':
+      self.rotateX = 0;
+      self.rotateY = 90;
+      break;
+    case 'back':
+      self.rotateX = 0;
+      self.rotateY = 180;
+      break;
+    case 'left':
+      self.rotateX = 0;
+      self.rotateY = 270;
+      break;
+    case 'top':
+      self.rotateX = 90;
+      self.rotateY = 0;
+      break;
+    case 'bottom':
+      self.rotateX = -90;
+      self.rotateY = 0;
+      break;
+    }
   }
 }
