@@ -73,6 +73,7 @@ var cuvr = new CuVR({
 | horizontalScroll  | enable horizontal scroll | Boolean | true
 | verticalScroll    | enable vertical scroll   | Boolean | true
 | cssTransition     | enable css transition    | Boolean | true
+| fullscreen        | enable fullscreen mode   | Boolean | true
 
 ### enableControl()
 

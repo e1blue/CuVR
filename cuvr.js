@@ -28,8 +28,13 @@ function CuVR(opts) {
   var view = root.querySelector('.cuvr-view');
   var cube = root.querySelector('.cuvr-cube');
 
-  // apply styles
-  setCubeSize(opts.cubeSize);
+  // fullscreen option
+  if (!!opts.fullscreen) {
+    setCubeSizeToFullscreen();
+    window.addEventListener('resize', setCubeSizeToFullscreen);
+  } else {
+    setCubeSize(opts.cubeSize);
+  }
 
   // anchor tag touch support
   Array.prototype.forEach.call(root.querySelectorAll('a'), function(a) {
@@ -65,11 +70,24 @@ function CuVR(opts) {
     setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf + 'px) rotateX(0deg) rotateY(0deg)');
 
     setStyle(root.querySelector('.cuvr-cube .front'), 'transform', 'translateZ(' + -cubeSizeHalf + 'px)');
-    setStyle(root.querySelector('.cuvr-cube .right'), 'transform','rotateY(-90deg) translateZ(' + -cubeSizeHalf + 'px)');
+    setStyle(root.querySelector('.cuvr-cube .right'), 'transform', 'rotateY(-90deg) translateZ(' + -cubeSizeHalf + 'px)');
     setStyle(root.querySelector('.cuvr-cube .back'), 'transform', 'rotateY(180deg) translateZ(' + -cubeSizeHalf + 'px)');
     setStyle(root.querySelector('.cuvr-cube .left'), 'transform', 'rotateY(90deg) translateZ(' + -cubeSizeHalf + 'px)');
     setStyle(root.querySelector('.cuvr-cube .top'), 'transform', 'rotateX(-90deg) translateZ(' + -cubeSizeHalf + 'px)');
     setStyle(root.querySelector('.cuvr-cube .bottom'), 'transform', 'rotateX(90deg) translateZ(' + -cubeSizeHalf + 'px)');
+  }
+  
+  /**
+   * Set cube size to fill entire window and set additional styles to view element and its parent.
+   */
+  function setCubeSizeToFullscreen() {
+    var size = Math.max(window.innerWidth, window.innerHeight);
+    var l = (window.innerWidth - size) * 0.5;
+    var t = (window.innerHeight - size) * 0.5;
+    view.style.left = l + 'px';
+    view.style.top = t + 'px';
+    view.parentNode.style.overflow = 'hidden';
+    setCubeSize(size);
   }
 
   /**
