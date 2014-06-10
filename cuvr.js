@@ -1,3 +1,7 @@
+/*
+ * CuVR (c) 2014 eje inc. http://www.eje-c.com
+ * License: MIT
+ */
 function CuVR(opts) {
   opts = extend({
     updateInterval: 100,
@@ -32,6 +36,12 @@ function CuVR(opts) {
   if (!!opts.fullscreen) {
     setCubeSizeToFullscreen();
     window.addEventListener('resize', setCubeSizeToFullscreen);
+
+    // prevent scroll with mouse wheel
+    view.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    });
   } else {
     setCubeSize(opts.cubeSize);
   }
