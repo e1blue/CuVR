@@ -79,7 +79,9 @@ function CuVR(opts) {
    * Set cube size.
    */
   function setCubeSize(size) {
+    // -1 is to prevent white border between each faces
     cubeSizeHalf = size / 2 - 1;
+    
     view.style.width = view.style.height = size + 'px';
     setStyle(view, 'perspective', cubeSizeHalf + 'px');
 
