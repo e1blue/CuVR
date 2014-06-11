@@ -12,7 +12,8 @@ function CuVR(opts) {
     sensor: false,
     horizontalScroll: true,
     verticalScroll: true,
-    cssTransition: true
+    cssTransition: true,
+    root: opts.root && document.querySelector(opts.root) || document
   }, opts);
 
   this.enableControl = enableControl;
@@ -28,15 +29,13 @@ function CuVR(opts) {
   var self = this;
   var cubeSizeHalf;
   var prevX = prevY = -1;
-  var root = opts.root && document.querySelector(opts.root) || document;
+  var root = opts.root;
   var view = root.querySelector('.cuvr-view');
   var cube = root.querySelector('.cuvr-cube');
 
-  // CuVR.Object plug-in
-  if (CuVR.Object) {
-    this.objects = Array.prototype.map.call(root.querySelectorAll('.cuvr-view > .cuvr-object'), function(elm) {
-      return new CuVR.Object(root, elm);
-    });
+  // plug-in support
+  for ( var plugin in CuVR.plugins) {
+    CuVR.plugins[plugin](this, opts);
   }
 
   // fullscreen option
@@ -354,3 +353,5 @@ function CuVR(opts) {
     }
   }
 }
+
+CuVR.plugins = {};
