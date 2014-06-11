@@ -1,104 +1,41 @@
+/*
+ * CuVR (c) 2014 eje inc. http://www.eje-c.com License: MIT
+ */
 CuVR.plugins.Object = function(cuvr, opts) {
   cuvr.objects = Array.prototype.map.call(opts.root.querySelectorAll('.cuvr-view > .cuvr-object'), function(elm) {
-    // 各 .cuvr-face にコピー
+    // clone to each .cuvr-face
     var elements = Array.prototype.map.call(opts.root.querySelectorAll('.cuvr-face'), function(face) {
       var cloned = elm.cloneNode();
       face.appendChild(cloned);
       return cloned;
     });
 
-    // .cuvr-view の直下から削除
-    elm.parentNode.removeChild(elm);
-
-    // 位置
     var pos = {
       x: Number(elm.dataset.posX) || 0,
       y: Number(elm.dataset.posY) || 0,
       z: Number(elm.dataset.posZ) || -1
     };
 
-    // 向き
-    var direction = {
-      x: Number(elm.dataset.directionX) || 1,
-      y: Number(elm.dataset.directionY) || 0
-    };
+    // delete original element
+    elm.parentNode.removeChild(elm);
 
     updatePosition();
 
     return {
-      setPosition: setPosition,
-      translateX: translateX,
-      translateY: translateY,
-      translateZ: translateZ,
-      progress: progress,
-      turn: turn
+      position: position
     };
 
-    function setPosition(x, y, z) {
-      pos.x = x;
-      pos.y = y;
-      pos.z = z;
+    function position(x, y, z) {
+      if (arguments.length === 0) return pos;
+
+      if (typeof x === 'number') pos.x = x;
+      if (typeof y === 'number') pos.y = y;
+      if (typeof z === 'number') pos.z = z;
       updatePosition();
-    }
-
-    function translateX(dx) {
-      pos.x += dx;
-      updatePosition();
-    }
-
-    function translateY(dy) {
-      pos.y += dy;
-      updatePosition();
-    }
-
-    function translateZ(dz) {
-      pos.z += dz;
-      updatePosition();
-    }
-
-    function progress(amount) {
-      var len = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
-      if (len === 0) return;
-
-      var dx = direction.x / len * amount;
-      var dy = direction.y / len * amount;
-
-      var angleXZ = Math.atan2(pos.x, -pos.z);
-
-      if (angleXZ >= -QUARTER_PI && angleXZ < QUARTER_PI) {
-        // on front
-        pos.x += dx;
-        pos.y += dy;
-      } else if (angleXZ >= -QUARTER_PI && angleXZ < 3 * QUARTER_PI) {
-        // on right
-        pos.z += dx;
-        pos.y += dy;
-      } else if (angleXZ >= 3 * QUARTER_PI || angleXZ < -3 * QUARTER_PI) {
-        // on back
-        pos.x -= dx;
-        pos.y += dy;
-      } else if (angleXZ < -QUARTER_PI && angleXZ >= -3 * QUARTER_PI) {
-        // on left
-        pos.z -= dx;
-        pos.y += dy;
-      }
-
-      updatePosition();
-    }
-
-    function turn(amount) {
-      var angle = Math.atan2(direction.y, direction.x);
-      var newAngle = angle + amount;
-      direction.y = Math.sin(newAngle);
-      direction.x = Math.cos(newAngle);
-
-      elements.forEach(function(elm) {
-        elm.style.transform = 'rotate(' + -newAngle + 'rad)';
-      });
     }
 
     function updatePosition() {
-      // z = -1 との交点
+      // set front position
       if (pos.z < 0) {
         var x = -pos.x / pos.z;
         var y = -pos.y / pos.z;
@@ -109,7 +46,7 @@ CuVR.plugins.Object = function(cuvr, opts) {
         elements[0].style.display = 'none';
       }
 
-      // x = 1 との交点
+      // set right position
       if (pos.x > 0) {
         var y = pos.y / pos.x;
         var z = pos.z / pos.x;
@@ -120,7 +57,7 @@ CuVR.plugins.Object = function(cuvr, opts) {
         elements[1].style.display = 'none';
       }
 
-      // z = 1 との交点
+      // set back position
       if (pos.z > 0) {
         var x = pos.x / pos.z;
         var y = pos.y / pos.z;
@@ -131,7 +68,7 @@ CuVR.plugins.Object = function(cuvr, opts) {
         elements[2].style.display = 'none';
       }
 
-      // x = -1 との交点
+      // set left position
       if (pos.x < 0) {
         var y = -pos.y / pos.x;
         var z = -pos.z / pos.x;
@@ -142,7 +79,7 @@ CuVR.plugins.Object = function(cuvr, opts) {
         elements[3].style.display = 'none';
       }
 
-      // y = 1 との交点
+      // set top position
       if (pos.y > 0) {
         var x = pos.x / pos.y;
         var z = pos.z / pos.y;
@@ -153,7 +90,7 @@ CuVR.plugins.Object = function(cuvr, opts) {
         elements[4].style.display = 'none';
       }
 
-      // y = -1 との交点
+      // set bottom position
       if (pos.y < 0) {
         var x = -pos.x / pos.y;
         var z = -pos.z / pos.y;
