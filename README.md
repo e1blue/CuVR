@@ -169,6 +169,32 @@ cuvr.horizontalScroll = false;
 var hs = cuvr.horizontalScroll;
 ```
 
+### cuvr.object.js
+
+This is experimental plug-in. It enables to put elements anywhere on VR faces.
+
+Include `cuvr.object.js` and put elements in `div.cuvr-view` and add `cuvr-object` class.
+
+```HTML
+<script src="./cuvr.js"></script>
+<script src="./cuvr.object.js"></script>
+...
+<div class="cuvr-view">
+  <div class="cuvr-cube">
+    <div class="cuvr-face front"></div>
+    <div class="cuvr-face right"></div>
+    <div class="cuvr-face back"></div>
+    <div class="cuvr-face left"></div>
+    <div class="cuvr-face top"></div>
+    <div class="cuvr-face bottom"></div>
+  </div>
+  <!-- put elements here -->
+  <img class="cuvr-object" src="yourimage.png">
+  <!-- set position with data-pos-* -->
+  <img class="cuvr-object" src="yourimage.png" data-pos-x="0.5" data-pos-y="-0.25" data-pos-z="-1">
+</div>
+```
+
 ## License
 
 MIT License. See the LICENSE file for more info.
