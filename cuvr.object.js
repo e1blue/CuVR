@@ -11,9 +11,9 @@ CuVR.plugins.Object = function(cuvr, opts) {
     });
 
     var pos = {
-      x: Number(elm.dataset.posX) || 0,
-      y: Number(elm.dataset.posY) || 0,
-      z: Number(elm.dataset.posZ) || -1
+      x: elm.dataset.posX ? Number(elm.dataset.posX) : 0,
+      y: elm.dataset.posY ? Number(elm.dataset.posY) : 0,
+      z: elm.dataset.posZ ? Number(elm.dataset.posZ) : -1
     };
 
     // delete original element
