@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta >
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+		<title>6. Library</title>
+		<link rel="stylesheet" href="../cuvr.css" type="text/css"/>
+		<style type="text/css">
+			.cuvr-face.front, .cuvr-face.right, .cuvr-face.back, .cuvr-face.left {
+				background: linear-gradient(0deg, #666, #fff)
+			}
+			.cuvr-face.bottom {
+				background: #666;
+			}
+
+			.myobj {
+				width: 10%;
+				margin-left: -5%;
+				margin-top: -5%;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="cuvr-view">
+			<div class="cuvr-cube">
+				<div class="cuvr-face front"></div>
+				<div class="cuvr-face right"></div>
+				<div class="cuvr-face back"></div>
+				<div class="cuvr-face left"></div>
+				<div class="cuvr-face top"></div>
+				<div class="cuvr-face bottom"></div>
+			</div>
+			<img class="cuvr-object myobj" src="https://avatars3.githubusercontent.com/u/6880461?s=140">
+			<img class="cuvr-object myobj" src="https://avatars3.githubusercontent.com/u/6880461?s=140" data-pos-x="1" data-pos-y="0" data-pos-z="0">
+			<img class="cuvr-object myobj" src="https://avatars3.githubusercontent.com/u/6880461?s=140" data-pos-x="0" data-pos-y="0" data-pos-z="1">
+			<img class="cuvr-object myobj" src="https://avatars3.githubusercontent.com/u/6880461?s=140" data-pos-x="-1" data-pos-y="0" data-pos-z="0">
+		</div>
+		<script src="../cuvr.js"></script>
+		<script src="../cuvr.object.js"></script>
+		<script>
+			var cuvr = new CuVR({
+				keyboard : false
+			});
+			document.addEventListener('keydown', function(e) {
+				switch(e.keyCode) {
+					case 37:
+						cuvr.objects.forEach(function(obj) {
+							obj.position(obj.position().x - 0.1);
+						});
+						break;
+					case 38:
+						cuvr.objects.forEach(function(obj) {
+							obj.position(obj.position().x, obj.position().y + 0.1);
+						});
+						break;
+					case 39:
+						cuvr.objects.forEach(function(obj) {
+							obj.position(obj.position().x + 0.1);
+						});
+						break;
+					case 40:
+						cuvr.objects.forEach(function(obj) {
+							obj.position(obj.position().x, obj.position().y - 0.1);
+						});
+						break;
+					default:
+						return;
+				}
+				e.preventDefault();
+				e.stopPropagation();
+			});
+		</script>
+	</body>
+</html>
