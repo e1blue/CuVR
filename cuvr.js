@@ -32,6 +32,13 @@ function CuVR(opts) {
   var view = root.querySelector('.cuvr-view');
   var cube = root.querySelector('.cuvr-cube');
 
+  // CuVR.Object plug-in
+  if (CuVR.Object) {
+    this.objects = Array.prototype.map.call(root.querySelectorAll('.cuvr-view > .cuvr-object'), function(elm) {
+      return new CuVR.Object(root, elm);
+    });
+  }
+
   // fullscreen option
   if (!!opts.fullscreen) {
     setCubeSizeToFullscreen();
@@ -81,7 +88,7 @@ function CuVR(opts) {
   function setCubeSize(size) {
     // -1 is to prevent white border between each faces
     cubeSizeHalf = size / 2 - 1;
-    
+
     view.style.width = view.style.height = size + 'px';
     setStyle(view, 'perspective', cubeSizeHalf + 'px');
 
