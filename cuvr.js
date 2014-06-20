@@ -3,6 +3,7 @@
  */
 function CuVR(opts) {
   opts = extend({
+    id: window.location.pathname,
     updateInterval: 100,
     cubeSize: Math.min(window.innerWidth, window.innerHeight),
     scrollSensitivity: 0.5,
@@ -72,7 +73,19 @@ function CuVR(opts) {
   // update view matrix on every updateInterval millis.
   setInterval(function() {
     setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf + 'px) rotateX(' + self.rotateX.toFixed(2) + 'deg) rotateY(' + self.rotateY.toFixed(2) + 'deg)');
+
+    // backup
+    if (window.sessionStorage) {
+      sessionStorage[opts.id + '-cuvrRotateX'] = self.rotateX;
+      sessionStorage[opts.id + '-cuvrRotateY'] = self.rotateY;
+    }
   }, opts.updateInterval);
+
+  // restore from backup
+  if (window.sessionStorage) {
+    self.rotateX = Number(sessionStorage[opts.id + '-cuvrRotateX']) || 0;
+    self.rotateY = Number(sessionStorage[opts.id + '-cuvrRotateY']) || 0;
+  }
 
   // enable CSS transition
   if (opts.cssTransition) {
