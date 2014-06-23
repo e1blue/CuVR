@@ -2,7 +2,7 @@
  * CuVR (c) 2014 eje inc. http://www.eje-c.com License: MIT
  */
 function CuVR(opts) {
-  opts = extend({
+  opts = CuVR.extend({
     id: window.location.pathname,
     updateInterval: 100,
     cubeSize: Math.min(window.innerWidth, window.innerHeight),
@@ -14,17 +14,19 @@ function CuVR(opts) {
     horizontalScroll: true,
     verticalScroll: true,
     cssTransition: true,
-    root: opts.root && document.querySelector(opts.root) || document
+    root: opts && opts.root && document.querySelector(opts.root) || document
   }, opts);
 
   this.enableControl = enableControl;
   this.disableControl = disableControl;
   this.rotateX = 0;
   this.rotateY = 0;
+  this.scale = 1;
   this.verticalScroll = opts.verticalScroll;
   this.horizontalScroll = opts.horizontalScroll;
   this.setCubeSize = setCubeSize;
   this.look = look;
+  this.backupExists = backupExists;
 
   // private variables
   var self = this;
@@ -72,7 +74,8 @@ function CuVR(opts) {
 
   // update view matrix on every updateInterval millis.
   setInterval(function() {
-    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf + 'px) rotateX(' + self.rotateX.toFixed(2) + 'deg) rotateY(' + self.rotateY.toFixed(2) + 'deg)');
+    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf * self.scale + 'px) rotateX(' + self.rotateX.toFixed(2) + 'deg) rotateY('
+            + self.rotateY.toFixed(2) + 'deg)');
 
     // backup
     if (window.sessionStorage) {
@@ -318,17 +321,6 @@ function CuVR(opts) {
     self.rotateY = -alpha + manualAdjustY;
   }
 
-  function extend(dst, src) {
-    if (!dst) return dst;
-
-    for (var i = 1; i < arguments.length; i++) {
-      for ( var prop in arguments[i]) {
-        dst[prop] = arguments[i][prop];
-      }
-    }
-    return dst;
-  }
-
   function setStyle(elm, name, value) {
     var capitalized = name.substr(0, 1).toUpperCase() + name.substr(1);
     ['webkit', 'moz'].forEach(function(prefix) {
@@ -365,6 +357,24 @@ function CuVR(opts) {
       break;
     }
   }
+
+  function backupExists() {
+    return window.sessionStorage && sessionStorage[opts.id + '-cuvrRotateX'] && sessionStorage[opts.id + '-cuvrRotateY'];
+  }
 }
 
 CuVR.plugins = {};
+
+CuVR.extend = function(dst, src) {
+  if (!dst) return dst;
+
+  for (var i = 1; i < arguments.length; i++) {
+    var obj = arguments[i];
+    if (obj) {
+      for ( var prop in obj) {
+        dst[prop] = arguments[i][prop];
+      }
+    }
+  }
+  return dst;
+}
