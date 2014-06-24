@@ -46,7 +46,10 @@
 		<script type="text/javascript" src="../cuvr.js"></script>
 		<script type="text/javascript" src="../cuvr.gyro.js"></script>
 		<script type="text/javascript" charset="utf-8">
-			var cuvr = new CuVR();
+			var cuvr = new CuVR({
+				updateInterval : 'auto',
+				cssTransition : false
+			});
 		</script>
 	</body>
 </html>
