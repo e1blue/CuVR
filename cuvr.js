@@ -9,7 +9,6 @@ function CuVR(opts) {
     scrollSensitivity: 0.5,
     mouse: true,
     touch: true,
-    keyboard: true,
     horizontalScroll: true,
     verticalScroll: true,
     cssTransition: true,
@@ -20,12 +19,14 @@ function CuVR(opts) {
   this.disableControl = disableControl;
   this.rotateX = 0;
   this.rotateY = 0;
+  this.rotateZ = 0;
   this.scale = 1;
   this.verticalScroll = opts.verticalScroll;
   this.horizontalScroll = opts.horizontalScroll;
   this.setCubeSize = setCubeSize;
   this.look = look;
   this.backupExists = backupExists;
+  this.update = update;
 
   // private variables
   var self = this;
@@ -73,13 +74,21 @@ function CuVR(opts) {
 
   // update view matrix on every updateInterval millis.
   if (opts.updateInterval === 'auto') {
-    // disable css transition
-    opts.cssTransition = false;
+    var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
-    var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame
-            || window.msRequestAnimationFrame;
     requestAnimationFrame(function _loop(timestamp) {
-      update();
+      if (_loop.prevTime) {
+        var dt = timestamp - _loop.prevTime;
+
+        // apply css transition
+        if (opts.cssTransition) {
+          setStyle(cube, 'transitionDuration', dt + 'ms');
+        }
+
+        update();
+      }
+
+      _loop.prevTime = timestamp;
       requestAnimationFrame(_loop);
     });
   } else if (typeof opts.updateInterval === 'number') {
@@ -90,23 +99,24 @@ function CuVR(opts) {
   if (window.sessionStorage) {
     self.rotateX = Number(sessionStorage[opts.id + '-cuvrRotateX']) || 0;
     self.rotateY = Number(sessionStorage[opts.id + '-cuvrRotateY']) || 0;
+    self.rotateZ = Number(sessionStorage[opts.id + '-cuvrRotateZ']) || 0;
   }
 
   // enable CSS transition
   if (opts.cssTransition) {
     setTimeout(function() {
-      cube.style.transitionDuration = opts.updateInterval + 'ms';
+      setStyle(cube, 'transitionDuration', opts.updateInterval + 'ms');
     }, opts.updateInterval);
   }
 
   function update() {
-    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf * self.scale + 'px) rotateX(' + self.rotateX.toFixed(2) + 'deg) rotateY('
-            + self.rotateY.toFixed(2) + 'deg)');
+    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf * self.scale + 'px) rotateX(' + self.rotateX.toFixed(2) + 'deg) rotateY(' + self.rotateY.toFixed(2) + 'deg) rotateZ(' + self.rotateZ.toFixed(2) + 'deg)');
 
     // backup
     if (window.sessionStorage) {
       sessionStorage[opts.id + '-cuvrRotateX'] = self.rotateX;
       sessionStorage[opts.id + '-cuvrRotateY'] = self.rotateY;
+      sessionStorage[opts.id + '-cuvrRotateZ'] = self.rotateZ;
     }
   }
   /**
@@ -157,11 +167,6 @@ function CuVR(opts) {
       opts.touch = true;
       view.addEventListener('touchstart', ondown);
     }
-
-    if (controlOpts === 'keyboard' || typeof controlOpts.keyboard === 'boolean' && controlOpts.keyboard) {
-      opts.keyboard = true;
-      window.addEventListener('keydown', onKeyDown);
-    }
   }
 
   /**
@@ -171,8 +176,7 @@ function CuVR(opts) {
     if (typeof controlOpts === 'undefined') {
       controlOpts = {
         mouse: true,
-        touch: true,
-        keyboard: true
+        touch: true
       };
     }
 
@@ -188,11 +192,6 @@ function CuVR(opts) {
       view.removeEventListener('touchstart', ondown);
       root.removeEventListener('touchmove', onmove);
       root.removeEventListener('touchend', onup);
-    }
-
-    if (controlOpts === 'keyboard' || typeof controlOpts.keyboard === 'boolean' && controlOpts.keyboard) {
-      opts.keyboard = false;
-      window.removeEventListener('keydown', onKeyDown);
     }
   }
 
@@ -246,26 +245,6 @@ function CuVR(opts) {
     prevX = prevY = -1;
   }
 
-  /**
-   * Keyboard support
-   */
-  function onKeyDown(e) {
-    switch (e.keyCode) {
-    case 37:// left
-      self.rotateY--;
-      break;
-    case 38:// top
-      self.rotateX++;
-      break;
-    case 39:// right
-      self.rotateY++;
-      break;
-    case 40:// bottom
-      self.rotateX--;
-      break;
-    }
-  }
-
   function setStyle(elm, name, value) {
     var capitalized = name.substr(0, 1).toUpperCase() + name.substr(1);
     ['webkit', 'moz'].forEach(function(prefix) {
@@ -304,7 +283,7 @@ function CuVR(opts) {
   }
 
   function backupExists() {
-    return window.sessionStorage && sessionStorage[opts.id + '-cuvrRotateX'] && sessionStorage[opts.id + '-cuvrRotateY'];
+    return window.sessionStorage && sessionStorage[opts.id + '-cuvrRotateX'] && sessionStorage[opts.id + '-cuvrRotateY'] && sessionStorage[opts.id + '-cuvrRotateZ'];
   }
 }
 
@@ -322,4 +301,4 @@ CuVR.extend = function(dst, src) {
     }
   }
   return dst;
-}
+};

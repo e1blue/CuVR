@@ -73,11 +73,25 @@
 			</div>
 		</div>
 		<!-- /VR Contents -->
-		
+
+		<button onclick="toggleGyro()" style="position: absolute;left:0;top:0;">
+			toggle gyro
+		</button>
+
 		<script type="text/javascript" src="./cuvr.js"></script>
 		<script src="./cuvr.wheel.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./cuvr.keyboard.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./cuvr.gyro.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript" charset="utf-8">
-			var cuvr = new CuVR();
+			var cuvr = new CuVR({
+				gyro : {
+					//enable : false
+				}
+			});
+
+			function toggleGyro() {
+				cuvr.gyro.toggle();
+			}
 		</script>
 	</body>
 </html>
