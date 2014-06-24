@@ -2,35 +2,43 @@
  * CuVR (c) 2014 eje inc. http://www.eje-c.com License: MIT
  */
 function CuVR(opts) {
-  opts = extend({
+  opts = CuVR.extend({
+    id: window.location.pathname,
     updateInterval: 100,
     cubeSize: Math.min(window.innerWidth, window.innerHeight),
     scrollSensitivity: 0.5,
     mouse: true,
     touch: true,
     keyboard: true,
-    sensor: false,
     horizontalScroll: true,
     verticalScroll: true,
-    cssTransition: true
+    cssTransition: true,
+    root: opts && opts.root && document.querySelector(opts.root) || document
   }, opts);
 
   this.enableControl = enableControl;
   this.disableControl = disableControl;
   this.rotateX = 0;
   this.rotateY = 0;
+  this.scale = 1;
   this.verticalScroll = opts.verticalScroll;
   this.horizontalScroll = opts.horizontalScroll;
   this.setCubeSize = setCubeSize;
   this.look = look;
+  this.backupExists = backupExists;
 
   // private variables
   var self = this;
   var cubeSizeHalf;
   var prevX = prevY = -1;
-  var root = opts.root && document.querySelector(opts.root) || document;
+  var root = opts.root;
   var view = root.querySelector('.cuvr-view');
   var cube = root.querySelector('.cuvr-cube');
+
+  // plug-in support
+  for ( var plugin in CuVR.plugins) {
+    CuVR.plugins[plugin](this, opts);
+  }
 
   // fullscreen option
   if (!!opts.fullscreen) {
@@ -64,9 +72,25 @@ function CuVR(opts) {
   enableControl(opts);
 
   // update view matrix on every updateInterval millis.
-  setInterval(function() {
-    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf + 'px) rotateX(' + self.rotateX.toFixed(2) + 'deg) rotateY(' + self.rotateY.toFixed(2) + 'deg)');
-  }, opts.updateInterval);
+  if (opts.updateInterval === 'auto') {
+    // disable css transition
+    opts.cssTransition = false;
+
+    var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame
+            || window.msRequestAnimationFrame;
+    requestAnimationFrame(function _loop(timestamp) {
+      update();
+      requestAnimationFrame(_loop);
+    });
+  } else if (typeof opts.updateInterval === 'number') {
+    setInterval(update, opts.updateInterval);
+  }
+
+  // restore from backup
+  if (window.sessionStorage) {
+    self.rotateX = Number(sessionStorage[opts.id + '-cuvrRotateX']) || 0;
+    self.rotateY = Number(sessionStorage[opts.id + '-cuvrRotateY']) || 0;
+  }
 
   // enable CSS transition
   if (opts.cssTransition) {
@@ -75,11 +99,23 @@ function CuVR(opts) {
     }, opts.updateInterval);
   }
 
+  function update() {
+    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf * self.scale + 'px) rotateX(' + self.rotateX.toFixed(2) + 'deg) rotateY('
+            + self.rotateY.toFixed(2) + 'deg)');
+
+    // backup
+    if (window.sessionStorage) {
+      sessionStorage[opts.id + '-cuvrRotateX'] = self.rotateX;
+      sessionStorage[opts.id + '-cuvrRotateY'] = self.rotateY;
+    }
+  }
   /**
    * Set cube size.
    */
   function setCubeSize(size) {
+    // -1 is to prevent white border between each faces
     cubeSizeHalf = size / 2 - 1;
+
     view.style.width = view.style.height = size + 'px';
     setStyle(view, 'perspective', cubeSizeHalf + 'px');
 
@@ -126,11 +162,6 @@ function CuVR(opts) {
       opts.keyboard = true;
       window.addEventListener('keydown', onKeyDown);
     }
-
-    if (controlOpts === 'sensor' || typeof controlOpts.sensor === 'boolean' && controlOpts.sensor) {
-      opts.sensor = true;
-      window.addEventListener('deviceorientation', onDeviceOrientation);
-    }
   }
 
   /**
@@ -141,8 +172,7 @@ function CuVR(opts) {
       controlOpts = {
         mouse: true,
         touch: true,
-        keyboard: true,
-        sensor: true
+        keyboard: true
       };
     }
 
@@ -164,11 +194,6 @@ function CuVR(opts) {
       opts.keyboard = false;
       window.removeEventListener('keydown', onKeyDown);
     }
-
-    if (controlOpts === 'sensor' || typeof controlOpts.sensor === 'boolean' && controlOpts.sensor) {
-      opts.sensor = false;
-      window.removeEventListener('deviceorientation', onDeviceOrientation);
-    }
   }
 
   /**
@@ -186,11 +211,6 @@ function CuVR(opts) {
       root.addEventListener('mousemove', onmove);
       root.addEventListener('mouseup', onup);
     }
-
-    if (opts.sensor) {
-      window.removeEventListener('deviceorientation', onDeviceOrientation);
-    }
-
   }
 
   function onmove(e) {
@@ -224,12 +244,6 @@ function CuVR(opts) {
 
     // invalidate prevX,prevY
     prevX = prevY = -1;
-
-    if (opts.sensor) {
-      manualAdjustX = self.rotateX;
-      manualAdjustY = self.rotateY;
-      window.addEventListener('deviceorientation', onDeviceOrientation);
-    }
   }
 
   /**
@@ -250,62 +264,6 @@ function CuVR(opts) {
       self.rotateX--;
       break;
     }
-  }
-
-  /**
-   * Orientation sensor support
-   */
-  var a = 0.85;
-  var alpha = 0, beta = 0, gamma = 0, prevA = 0, prevB = 0, prevG = 0, offsetA = 0, offsetB = 0, offsetG = 0, manualAdjustX = 0, manualAdjustY = 0;
-  function onDeviceOrientation(e) {
-    var newAlpha = e.alpha;
-    var newBeta = e.beta;
-    var newGamma = e.gamma;
-    var da = newAlpha - prevA;
-    var db = newBeta - prevB;
-    var dg = newGamma - prevG;
-
-    // alphaが急激に変化するときの処理
-    if (da > 350) {
-      // 0 to 360
-      offsetA -= 360;
-    } else if (da < -350) {
-      offsetA += 360;
-    }
-
-    prevA = newAlpha;
-    prevB = newBeta;
-    prevG = newGamma;
-    //
-    // // betaが急激に変化するときの処理
-    // if (db * db > 0) {
-    // if (db > 350) {
-    // // 0 to 360
-    // offsetB -= 360;
-    // } else if (db < -350) {
-    // offsetB += 360;
-    // }
-    // db = 0;
-    // }
-
-    // apply low pass filter
-    alpha = a * alpha + (1 - a) * (e.alpha + offsetA);
-    beta = a * beta + (1 - a) * (e.beta + offsetB);
-    gamma = a * gamma + (1 - a) * (e.gamma + offsetG);
-
-    self.rotateX = beta - 90 + manualAdjustX;
-    self.rotateY = -alpha + manualAdjustY;
-  }
-
-  function extend(dst, src) {
-    if (!dst) return dst;
-
-    for (var i = 1; i < arguments.length; i++) {
-      for ( var prop in arguments[i]) {
-        dst[prop] = arguments[i][prop];
-      }
-    }
-    return dst;
   }
 
   function setStyle(elm, name, value) {
@@ -344,4 +302,24 @@ function CuVR(opts) {
       break;
     }
   }
+
+  function backupExists() {
+    return window.sessionStorage && sessionStorage[opts.id + '-cuvrRotateX'] && sessionStorage[opts.id + '-cuvrRotateY'];
+  }
+}
+
+CuVR.plugins = {};
+
+CuVR.extend = function(dst, src) {
+  if (!dst) return dst;
+
+  for (var i = 1; i < arguments.length; i++) {
+    var obj = arguments[i];
+    if (obj) {
+      for ( var prop in obj) {
+        dst[prop] = arguments[i][prop];
+      }
+    }
+  }
+  return dst;
 }
