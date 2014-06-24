@@ -9,7 +9,6 @@ function CuVR(opts) {
     scrollSensitivity: 0.5,
     mouse: true,
     touch: true,
-    keyboard: true,
     horizontalScroll: true,
     verticalScroll: true,
     cssTransition: true,
@@ -168,11 +167,6 @@ function CuVR(opts) {
       opts.touch = true;
       view.addEventListener('touchstart', ondown);
     }
-
-    if (controlOpts === 'keyboard' || typeof controlOpts.keyboard === 'boolean' && controlOpts.keyboard) {
-      opts.keyboard = true;
-      window.addEventListener('keydown', onKeyDown);
-    }
   }
 
   /**
@@ -182,8 +176,7 @@ function CuVR(opts) {
     if (typeof controlOpts === 'undefined') {
       controlOpts = {
         mouse: true,
-        touch: true,
-        keyboard: true
+        touch: true
       };
     }
 
@@ -199,11 +192,6 @@ function CuVR(opts) {
       view.removeEventListener('touchstart', ondown);
       root.removeEventListener('touchmove', onmove);
       root.removeEventListener('touchend', onup);
-    }
-
-    if (controlOpts === 'keyboard' || typeof controlOpts.keyboard === 'boolean' && controlOpts.keyboard) {
-      opts.keyboard = false;
-      window.removeEventListener('keydown', onKeyDown);
     }
   }
 
@@ -257,26 +245,6 @@ function CuVR(opts) {
     prevX = prevY = -1;
   }
 
-  /**
-   * Keyboard support
-   */
-  function onKeyDown(e) {
-    switch (e.keyCode) {
-    case 37:// left
-      self.rotateY--;
-      break;
-    case 38:// top
-      self.rotateX++;
-      break;
-    case 39:// right
-      self.rotateY++;
-      break;
-    case 40:// bottom
-      self.rotateX--;
-      break;
-    }
-  }
-
   function setStyle(elm, name, value) {
     var capitalized = name.substr(0, 1).toUpperCase() + name.substr(1);
     ['webkit', 'moz'].forEach(function(prefix) {
@@ -315,7 +283,7 @@ function CuVR(opts) {
   }
 
   function backupExists() {
-    return window.sessionStorage && sessionStorage[opts.id + '-cuvrRotateX'] && sessionStorage[opts.id + '-cuvrRotateY']&& sessionStorage[opts.id + '-cuvrRotateZ'];
+    return window.sessionStorage && sessionStorage[opts.id + '-cuvrRotateX'] && sessionStorage[opts.id + '-cuvrRotateY'] && sessionStorage[opts.id + '-cuvrRotateZ'];
   }
 }
 
