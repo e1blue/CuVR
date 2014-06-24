@@ -26,6 +26,7 @@ function CuVR(opts) {
   this.setCubeSize = setCubeSize;
   this.look = look;
   this.backupExists = backupExists;
+  this.update = update;
 
   // private variables
   var self = this;
@@ -73,13 +74,21 @@ function CuVR(opts) {
 
   // update view matrix on every updateInterval millis.
   if (opts.updateInterval === 'auto') {
-    // disable css transition
-    opts.cssTransition = false;
+    var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
-    var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame
-            || window.msRequestAnimationFrame;
     requestAnimationFrame(function _loop(timestamp) {
-      update();
+      if (_loop.prevTime) {
+        var dt = timestamp - _loop.prevTime;
+
+        // apply css transition
+        if (opts.cssTransition) {
+          setStyle(cube, 'transitionDuration', dt + 'ms');
+        }
+
+        update();
+      }
+
+      _loop.prevTime = timestamp;
       requestAnimationFrame(_loop);
     });
   } else if (typeof opts.updateInterval === 'number') {
@@ -95,13 +104,12 @@ function CuVR(opts) {
   // enable CSS transition
   if (opts.cssTransition) {
     setTimeout(function() {
-      cube.style.transitionDuration = opts.updateInterval + 'ms';
+      setStyle(cube, 'transitionDuration', opts.updateInterval + 'ms');
     }, opts.updateInterval);
   }
 
   function update() {
-    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf * self.scale + 'px) rotateX(' + self.rotateX.toFixed(2) + 'deg) rotateY('
-            + self.rotateY.toFixed(2) + 'deg)');
+    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf * self.scale + 'px) rotateX(' + self.rotateX.toFixed(2) + 'deg) rotateY(' + self.rotateY.toFixed(2) + 'deg)');
 
     // backup
     if (window.sessionStorage) {
