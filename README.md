@@ -217,6 +217,9 @@ Add mouse wheel scroll scale function.
 
 Add basic keyboard control function.
 
+### cuvr.gyro.js
+
+Add gyro sensor support. This plugin is in very alpha stage.
 
 
 ## License
