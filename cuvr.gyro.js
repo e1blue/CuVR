@@ -1,11 +1,14 @@
 /*
  * CuVR (c) 2014 eje inc. http://www.eje-c.com License: MIT
+ * 
+ * based on krpano Gyroscope Plugin
+ * http://fieldofview.github.io/krpano_fovplugins/gyro/plugin.html
  */
 CuVR.plugins.Gyro = function(cuvr, opts) {
   // options
   opts.gyro = CuVR.extend({
     enable: true,
-    friction: 0.1
+    friction: 0.5
   }, opts.gyro);
 
   // public API
@@ -16,18 +19,23 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
     toggle: toggle
   };
 
-  // private
-  var enabled, vLookAt, hLookAt, vOffset, hOffset, friction = opts.gyro.friction;
-
   if (opts.gyro.enable) {
     enable();
   }
+
+  // private
+  var enabled, vOffset, hOffset, friction = opts.gyro.friction, isTouching = false;
 
   function enable() {
     if (!enabled) {
       vOffset = 0;
       hOffset = 0;
       window.addEventListener('deviceorientation', handleOrientation);
+
+      var view = opts.root.querySelector('.cuvr-view');
+      view.addEventListener('touchstart', handleTouchStart, true);
+      view.addEventListener('touchend', handleTouchEnd, true);
+      view.addEventListener('touchcancel', handleTouchEnd, true);
       enabled = true;
     }
   }
@@ -35,6 +43,12 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
   function disable() {
     if (enabled) {
       window.removeEventListener('deviceorientation', handleOrientation);
+
+      var view = opts.root.querySelector('.cuvr-view');
+      view.removeEventListener('touchstart', handleTouchStart, true);
+      view.removeEventListener('touchend', handleTouchEnd, true);
+      view.removeEventListener('touchcancel', handleTouchEnd, true);
+
       enabled = false;
     }
   }
@@ -50,6 +64,15 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
       enable();
   }
 
+  function handleTouchStart(event) {
+    isTouching = true;
+    if (enabled) window.removeEventListener('deviceorientation', handleOrientation);
+  }
+
+  function handleTouchEnd(event) {
+    isTouching = false;
+    if (enabled) window.addEventListener('deviceorientation', handleOrientation);
+  }
   var degRad = Math.PI / 180;
 
   /**
@@ -58,11 +81,7 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
    */
   function handleOrientation(event) {
     // Process event.alpha, event.beta and event.gamma
-    var deviceOrientation = window.top && top.orientation || window.orientation, orientation = rotateEuler({
-      yaw: event["alpha"] * degRad,
-      pitch: event["beta"] * degRad,
-      roll: event["gamma"] * degRad
-    }), yaw = wrapAngle(orientation.yaw / degRad), pitch = orientation.pitch / degRad, altYaw = yaw, factor, hLookAtNow = cuvr.rotateY, vLookAtNow = cuvr.rotateX, camRollNow = cuvr.rotateZ;
+    var deviceOrientation = window.top && top.orientation || window.orientation, orientation = rotateEuler(event.alpha * degRad, event.beta * degRad, event.gamma * degRad), yaw = wrapAngle(orientation.yaw / degRad), pitch = orientation.pitch / degRad, altYaw = yaw, factor, hLookAtNow = cuvr.rotateY, vLookAtNow = cuvr.rotateX, camRollNow = cuvr.rotateZ;
 
     camRoll = wrapAngle(180 + Number(deviceOrientation) - orientation.roll / degRad);
 
@@ -94,16 +113,14 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
       camRoll *= (1 - factor);
     }
 
-    // Track view change since last orientation event
-    // ie: user has manually panned, or krpano has altered lookat
     // hOffset += hSpeed;
     // vOffset += vSpeed;
 
     // Clamp vOffset
     if (Math.abs(pitch + vOffset) > 90) vOffset = (pitch + vOffset > 0) ? (90 - pitch) : (-90 - pitch);
 
-    hLookAt = wrapAngle(-yaw - 180 + hOffset);
-    vLookAt = Math.max(Math.min((pitch + vOffset), 90), -90);
+    var hLookAt = wrapAngle(-yaw - 180 + hOffset);
+    var vLookAt = Math.max(Math.min((pitch + vOffset), 90), -90);
 
     // Dampen lookat
     if (Math.abs(hLookAt - hLookAtNow) > 180) hLookAtNow += (hLookAt > hLookAtNow) ? 360 : -360;
@@ -122,8 +139,8 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
   /**
    * See http://fieldofview.github.io/krpano_fovplugins/gyro/plugin.html
    */
-  function rotateEuler(euler) {
-    var heading, bank, attitude, ch = Math.cos(euler.yaw), sh = Math.sin(euler.yaw), ca = Math.cos(euler.pitch), sa = Math.sin(euler.pitch), cb = Math.cos(euler.roll), sb = Math.sin(euler.roll),
+  function rotateEuler(yaw, pitch, roll) {
+    var heading, bank, attitude, ch = Math.cos(yaw), sh = Math.sin(yaw), ca = Math.cos(pitch), sa = Math.sin(pitch), cb = Math.cos(roll), sb = Math.sin(roll),
 
     matrix = [sh * sb - ch * sa * cb, -ch * ca, ch * sa * sb + sh * cb, ca * cb, -sa, -ca * sb, sh * sa * cb + ch * sb, sh * ca, -sh * sa * sb + ch * cb];
 
