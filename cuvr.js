@@ -20,6 +20,7 @@ function CuVR(opts) {
   this.disableControl = disableControl;
   this.rotateX = 0;
   this.rotateY = 0;
+  this.rotateZ = 0;
   this.scale = 1;
   this.verticalScroll = opts.verticalScroll;
   this.horizontalScroll = opts.horizontalScroll;
@@ -99,6 +100,7 @@ function CuVR(opts) {
   if (window.sessionStorage) {
     self.rotateX = Number(sessionStorage[opts.id + '-cuvrRotateX']) || 0;
     self.rotateY = Number(sessionStorage[opts.id + '-cuvrRotateY']) || 0;
+    self.rotateZ = Number(sessionStorage[opts.id + '-cuvrRotateZ']) || 0;
   }
 
   // enable CSS transition
@@ -109,12 +111,13 @@ function CuVR(opts) {
   }
 
   function update() {
-    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf * self.scale + 'px) rotateX(' + self.rotateX.toFixed(2) + 'deg) rotateY(' + self.rotateY.toFixed(2) + 'deg)');
+    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf * self.scale + 'px) rotateX(' + self.rotateX.toFixed(2) + 'deg) rotateY(' + self.rotateY.toFixed(2) + 'deg) rotateZ(' + self.rotateZ.toFixed(2) + 'deg)');
 
     // backup
     if (window.sessionStorage) {
       sessionStorage[opts.id + '-cuvrRotateX'] = self.rotateX;
       sessionStorage[opts.id + '-cuvrRotateY'] = self.rotateY;
+      sessionStorage[opts.id + '-cuvrRotateZ'] = self.rotateZ;
     }
   }
   /**
@@ -312,7 +315,7 @@ function CuVR(opts) {
   }
 
   function backupExists() {
-    return window.sessionStorage && sessionStorage[opts.id + '-cuvrRotateX'] && sessionStorage[opts.id + '-cuvrRotateY'];
+    return window.sessionStorage && sessionStorage[opts.id + '-cuvrRotateX'] && sessionStorage[opts.id + '-cuvrRotateY']&& sessionStorage[opts.id + '-cuvrRotateZ'];
   }
 }
 
@@ -330,4 +333,4 @@ CuVR.extend = function(dst, src) {
     }
   }
   return dst;
-}
+};
