@@ -24,12 +24,10 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
   }
 
   // private
-  var enabled, vOffset, hOffset, friction = opts.gyro.friction, isTouching = false;
+  var enabled, friction = opts.gyro.friction, isTouching = false;
 
   function enable() {
     if (!enabled) {
-      vOffset = 0;
-      hOffset = 0;
       window.addEventListener('deviceorientation', handleOrientation);
 
       var view = opts.root.querySelector('.cuvr-view');
@@ -81,7 +79,13 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
    */
   function handleOrientation(event) {
     // Process event.alpha, event.beta and event.gamma
-    var deviceOrientation = window.top && top.orientation || window.orientation, orientation = rotateEuler(event.alpha * degRad, event.beta * degRad, event.gamma * degRad), yaw = wrapAngle(orientation.yaw / degRad), pitch = orientation.pitch / degRad, altYaw = yaw, factor, hLookAtNow = cuvr.rotateY, vLookAtNow = cuvr.rotateX, camRollNow = cuvr.rotateZ;
+    var deviceOrientation = window.top && top.orientation || window.orientation;
+    var orientation = rotateEuler(event.alpha * degRad, event.beta * degRad, event.gamma * degRad);
+    var yaw = wrapAngle(orientation.yaw / degRad);
+    var pitch = orientation.pitch / degRad, altYaw = yaw;
+    var hLookAtNow = cuvr.rotateY;
+    var vLookAtNow = cuvr.rotateX;
+    var camRollNow = cuvr.rotateZ;
 
     camRoll = wrapAngle(180 + Number(deviceOrientation) - orientation.roll / degRad);
 
@@ -107,20 +111,14 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
       altYaw = wrapAngle(altYaw);
       if (Math.abs(altYaw - yaw) > 180) altYaw += (altYaw < yaw) ? 360 : -360;
 
-      factor = Math.min(1, (Math.abs(pitch) - 70) / 10);
+      var factor = Math.min(1, (Math.abs(pitch) - 70) / 10);
       yaw = yaw * (1 - factor) + altYaw * factor;
 
       camRoll *= (1 - factor);
     }
 
-    // hOffset += hSpeed;
-    // vOffset += vSpeed;
-
-    // Clamp vOffset
-    if (Math.abs(pitch + vOffset) > 90) vOffset = (pitch + vOffset > 0) ? (90 - pitch) : (-90 - pitch);
-
-    var hLookAt = wrapAngle(-yaw - 180 + hOffset);
-    var vLookAt = Math.max(Math.min((pitch + vOffset), 90), -90);
+    var hLookAt = wrapAngle(-yaw - 180);
+    var vLookAt = Math.max(Math.min((pitch), 90), -90);
 
     // Dampen lookat
     if (Math.abs(hLookAt - hLookAtNow) > 180) hLookAtNow += (hLookAt > hLookAtNow) ? 360 : -360;
