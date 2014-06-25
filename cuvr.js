@@ -137,7 +137,6 @@ function CuVR(opts) {
     setStyle(view, 'perspective', cubeSizeHalf + 'px');
 
     cube.style.width = cube.style.height = size + 'px';
-    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf + 'px) rotateX(0deg) rotateY(0deg)');
 
     setStyle(root.querySelector('.cuvr-cube .front'), 'transform', 'translateZ(' + -cubeSizeHalf + 'px)');
     setStyle(root.querySelector('.cuvr-cube .right'), 'transform', 'rotateY(-90deg) translateZ(' + -cubeSizeHalf + 'px)');
