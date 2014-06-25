@@ -12,13 +12,14 @@ function CuVR(opts) {
     horizontalScroll: true,
     verticalScroll: true,
     cssTransition: true,
-    root: opts && opts.root && document.querySelector(opts.root) || document
+    root: opts && opts.root && document.querySelector(opts.root) || document,
+    scale: 1
   }, opts);
 
   // public API
   this.enableControl = enableControl;
   this.disableControl = disableControl;
-  this.scale = 1;
+  this.scale = opts.scale;
   this.verticalScroll = opts.verticalScroll;
   this.horizontalScroll = opts.horizontalScroll;
   this.setCubeSize = setCubeSize;

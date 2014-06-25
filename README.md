@@ -76,6 +76,7 @@ var cuvr = new CuVR({
 | rotateX           | init rotateX             | Number  | 0
 | rotateY           | init rotateY             | Number  | 0
 | rotateZ           | init rotateZ             | Number  | 0
+| scale             | init scale               | Number  | 1
 
 If `updateInterval:'auto'` is specified, CuVR updates frames as fast as possible by calling `requestAnimationFrame` continually.
 
@@ -154,6 +155,16 @@ cuvr.bank(0);      // = rotateX
 var x = cuvr.rotateX();
 var y = cuvr.rotateY();
 var z = cuvr.rotateZ();
+```
+
+### scale
+
+```JavaScript
+// set
+cuvr.scale = 1.5;
+
+// get
+var scale = cuvr.scale;
 ```
 
 ### verticalScroll
