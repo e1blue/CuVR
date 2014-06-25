@@ -15,11 +15,9 @@ function CuVR(opts) {
     root: opts && opts.root && document.querySelector(opts.root) || document
   }, opts);
 
+  // public API
   this.enableControl = enableControl;
   this.disableControl = disableControl;
-  this.rotateX = 0;
-  this.rotateY = 0;
-  this.rotateZ = 0;
   this.scale = 1;
   this.verticalScroll = opts.verticalScroll;
   this.horizontalScroll = opts.horizontalScroll;
@@ -27,9 +25,24 @@ function CuVR(opts) {
   this.look = look;
   this.backupExists = backupExists;
   this.update = update;
+  this.heading = setOrGetRotateY;
+  this.attitude = setOrGetRotateZ;
+  this.bank = setOrGetRotateX;
+  this.yaw = setOrGetRotateY;
+  this.pitch = setOrGetRotateZ;
+  this.roll = setOrGetRotateX;
+  this.x = setOrGetRotateX;
+  this.y = setOrGetRotateY;
+  this.z = setOrGetRotateZ;
+  this.rotateX = setOrGetRotateX;
+  this.rotateY = setOrGetRotateY;
+  this.rotateZ = setOrGetRotateZ;
 
   // private variables
   var self = this;
+  var rotateX = 0;
+  var rotateY = 0;
+  var rotateZ = 0;
   var cubeSizeHalf;
   var prevX = prevY = -1;
   var root = opts.root;
@@ -97,9 +110,9 @@ function CuVR(opts) {
 
   // restore from backup
   if (window.sessionStorage) {
-    self.rotateX = Number(sessionStorage[opts.id + '-cuvrRotateX']) || 0;
-    self.rotateY = Number(sessionStorage[opts.id + '-cuvrRotateY']) || 0;
-    self.rotateZ = Number(sessionStorage[opts.id + '-cuvrRotateZ']) || 0;
+    rotateX = Number(sessionStorage[opts.id + '-cuvrRotateX']) || 0;
+    rotateY = Number(sessionStorage[opts.id + '-cuvrRotateY']) || 0;
+    rotateZ = Number(sessionStorage[opts.id + '-cuvrRotateZ']) || 0;
   }
 
   // enable CSS transition
@@ -110,13 +123,13 @@ function CuVR(opts) {
   }
 
   function update() {
-    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf * self.scale + 'px) rotateX(' + self.rotateX.toFixed(2) + 'deg) rotateY(' + self.rotateY.toFixed(2) + 'deg) rotateZ(' + self.rotateZ.toFixed(2) + 'deg)');
+    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf * self.scale + 'px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) rotateZ(' + rotateZ + 'deg)');
 
     // backup
     if (window.sessionStorage) {
-      sessionStorage[opts.id + '-cuvrRotateX'] = self.rotateX;
-      sessionStorage[opts.id + '-cuvrRotateY'] = self.rotateY;
-      sessionStorage[opts.id + '-cuvrRotateZ'] = self.rotateZ;
+      sessionStorage[opts.id + '-cuvrRotateX'] = rotateX;
+      sessionStorage[opts.id + '-cuvrRotateY'] = rotateY;
+      sessionStorage[opts.id + '-cuvrRotateZ'] = rotateZ;
     }
   }
   /**
@@ -221,13 +234,19 @@ function CuVR(opts) {
       if (self.horizontalScroll) {
         var dx = x - prevX;
         dx = dx / opts.cubeSize * 360 * opts.scrollSensitivity;
-        self.rotateY -= dx;
+        rotateY -= dx;
       }
 
       if (self.verticalScroll) {
         var dy = y - prevY;
         dy = dy / opts.cubeSize * 360 * opts.scrollSensitivity;
-        self.rotateX += dy;
+        rotateX += dy;
+
+        if (rotateX > 90) {
+          rotateX = 90;
+        } else if (rotateX < -90) {
+          rotateX = -90;
+        }
       }
     }
 
@@ -254,36 +273,60 @@ function CuVR(opts) {
   }
 
   function look(to) {
-    switch (to) {
-    case 'front':
-      self.rotateX = 0;
-      self.rotateY = 0;
-      break;
-    case 'right':
-      self.rotateX = 0;
-      self.rotateY = 90;
-      break;
-    case 'back':
-      self.rotateX = 0;
-      self.rotateY = 180;
-      break;
-    case 'left':
-      self.rotateX = 0;
-      self.rotateY = 270;
-      break;
-    case 'top':
-      self.rotateX = 90;
-      self.rotateY = 0;
-      break;
-    case 'bottom':
-      self.rotateX = -90;
-      self.rotateY = 0;
-      break;
+    if (typeof to === 'string') {
+      switch (to) {
+      case 'front':
+        rotateX = 0;
+        rotateY = 0;
+        break;
+      case 'right':
+        rotateX = 0;
+        rotateY = 90;
+        break;
+      case 'back':
+        rotateX = 0;
+        rotateY = 180;
+        break;
+      case 'left':
+        rotateX = 0;
+        rotateY = 270;
+        break;
+      case 'top':
+        rotateX = 90;
+        rotateY = 0;
+        break;
+      case 'bottom':
+        rotateX = -90;
+        rotateY = 0;
+        break;
+      }
     }
   }
 
   function backupExists() {
     return window.sessionStorage && sessionStorage[opts.id + '-cuvrRotateX'] && sessionStorage[opts.id + '-cuvrRotateY'] && sessionStorage[opts.id + '-cuvrRotateZ'];
+  }
+
+  function setOrGetRotateX(arg) {
+    if (arg === undefined) {
+      return rotateX;
+    } else {
+      rotateX = arg;
+    }
+  }
+  function setOrGetRotateY(arg) {
+    if (arg === undefined) {
+      return rotateY;
+    } else {
+      rotateY = arg;
+    }
+  }
+  function setOrGetRotateZ(arg) {
+    if (arg === undefined) {
+      return rotateZ;
+    } else {
+      rotateZ = arg;
+    }
   }
 }
 
