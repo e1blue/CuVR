@@ -107,15 +107,22 @@ function CuVR(opts) {
     });
   } else if (typeof opts.updateInterval === 'number') {
     setInterval(update, opts.updateInterval);
+  } else {
+    update();
   }
 
   // enable CSS transition
   if (opts.cssTransition) {
-    setTimeout(function() {
-      setStyle(cube, 'transitionDuration', opts.updateInterval + 'ms');
-    }, opts.updateInterval);
+    if (typeof opts.updateInterval === 'number') {
+      setTimeout(updateTransitionDuration, opts.updateInterval);
+    } else {
+      updateTransitionDuration();
+    }
   }
 
+  /**
+   * Update screen.
+   */
   function update() {
     setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf * self.scale + 'px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) rotateZ(' + rotateZ + 'deg)');
 
@@ -125,6 +132,13 @@ function CuVR(opts) {
       sessionStorage[opts.id + '-cuvrRotateY'] = rotateY;
       sessionStorage[opts.id + '-cuvrRotateZ'] = rotateZ;
     }
+  }
+
+  /**
+   * Update cube's transition-duration style.
+   */
+  function updateTransitionDuration() {
+    setStyle(cube, 'transitionDuration', opts.updateInterval + 'ms');
   }
   /**
    * Set cube size.
