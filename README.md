@@ -213,10 +213,6 @@ Include `cuvr.object.js` and put elements in `div.cuvr-view` and add `cuvr-objec
 
 Add mouse wheel scroll scale function.
 
-### cuvr.keyboard.js
-
-Add basic keyboard control function.
-
 ### cuvr.gyro.js
 
 Add gyro sensor support. This plugin is in very alpha stage.
