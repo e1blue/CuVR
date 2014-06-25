@@ -125,34 +125,32 @@ cuvr.look('top');
 cuvr.look('bottom');
 ```
 
-### rotateX
+### get & set rotation values
 
 ```JavaScript
-// set
-cuvr.rotateX = 120;
+cuvr.rotateX(40);
+cuvr.rotateY(60);
+cuvr.rotateZ(20);
+
+// or simple version
+cuvr.x(40);
+cuvr.y(60);
+cuvr.z(20);
+
+// or with yaw,pitch,roll
+cuvr.yaw(90);   // = rotateY
+cuvr.pitch(45); // = rotateZ
+cuvr.roll(0);   // = rotateX 
+
+// or with heading,attitude,bank
+cuvr.heading(90);  // = rotateY
+cuvr.attitude(45); // = rotateZ
+cuvr.bank(0);      // = rotateX
 
 // get
-var r = cuvr.rotateX;
-```
-
-### rotateY
-
-```JavaScript
-// set
-cuvr.rotateY = 80;
-
-// get
-var r = cuvr.rotateY;
-```
-
-### rotateZ
-
-```JavaScript
-// set
-cuvr.rotateZ = 40;
-
-// get
-var r = cuvr.rotateZ;
+var x = cuvr.rotateX();
+var y = cuvr.rotateY();
+var z = cuvr.rotateZ();
 ```
 
 ### verticalScroll
@@ -217,6 +215,25 @@ Add mouse wheel scroll scale function.
 
 Add gyro sensor support. This plugin is in very alpha stage.
 
+## How to create plugin
+
+```JavaScript
+// cuvr is CuVR's instance.
+// opts is option object passed to CuVR constructor
+CuVR.plugins['YourPluginName'] = function(cuvr, opts) {
+  // options (if required)
+  opts['yourPluginName'] = CuVR.extend({
+    // default values
+  }, opts['yourPluginName']);
+
+  // public API
+  cuvr['yourPluginName'] = {
+    // public APIs
+  };
+
+  // other initialization codes
+};
+```
 
 ## License
 
