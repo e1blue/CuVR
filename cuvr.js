@@ -40,9 +40,9 @@ function CuVR(opts) {
 
   // private variables
   var self = this;
-  var rotateX = 0;
-  var rotateY = 0;
-  var rotateZ = 0;
+  var rotateX = window.sessionStorage && Number(sessionStorage[opts.id + '-cuvrRotateX']) || opts.rotateX || opts.x || opts.roll || opts.bank || 0;
+  var rotateY = window.sessionStorage && Number(sessionStorage[opts.id + '-cuvrRotateY']) || opts.rotateY || opts.y || opts.yaw || opts.heading || 0;
+  var rotateZ = window.sessionStorage && Number(sessionStorage[opts.id + '-cuvrRotateZ']) || opts.rotateZ || opts.z || opts.pitch || opts.attitude || 0;
   var cubeSizeHalf;
   var prevX = prevY = -1;
   var root = opts.root;
@@ -106,13 +106,6 @@ function CuVR(opts) {
     });
   } else if (typeof opts.updateInterval === 'number') {
     setInterval(update, opts.updateInterval);
-  }
-
-  // restore from backup
-  if (window.sessionStorage) {
-    rotateX = Number(sessionStorage[opts.id + '-cuvrRotateX']) || 0;
-    rotateY = Number(sessionStorage[opts.id + '-cuvrRotateY']) || 0;
-    rotateZ = Number(sessionStorage[opts.id + '-cuvrRotateZ']) || 0;
   }
 
   // enable CSS transition
@@ -332,7 +325,10 @@ function CuVR(opts) {
 
 CuVR.plugins = {};
 
-CuVR.extend = function(dst, src) {
+/**
+ * Copy all properties from src(s) to dst and return dst.
+ */
+CuVR.extend = function(dst/* , src... */) {
   if (!dst) return dst;
 
   for (var i = 1; i < arguments.length; i++) {

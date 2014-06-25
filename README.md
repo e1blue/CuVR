@@ -73,6 +73,9 @@ var cuvr = new CuVR({
 | verticalScroll    | enable vertical scroll   | Boolean | true
 | cssTransition     | enable css transition    | Boolean | true
 | fullscreen        | enable fullscreen mode   | Boolean | true
+| rotateX           | init rotateX             | Number  | 0
+| rotateY           | init rotateY             | Number  | 0
+| rotateZ           | init rotateZ             | Number  | 0
 
 If `updateInterval:'auto'` is specified, CuVR updates frames as fast as possible by calling `requestAnimationFrame` continually.
 
