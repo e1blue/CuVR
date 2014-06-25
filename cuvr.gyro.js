@@ -83,9 +83,9 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
     var orientation = rotateEuler(event.alpha * degRad, event.beta * degRad, event.gamma * degRad);
     var yaw = wrapAngle(orientation.yaw / degRad);
     var pitch = orientation.pitch / degRad, altYaw = yaw;
-    var hLookAtNow = cuvr.rotateY;
-    var vLookAtNow = cuvr.rotateX;
-    var camRollNow = cuvr.rotateZ;
+    var hLookAtNow = cuvr.yaw();
+    var vLookAtNow = cuvr.pitch();
+    var camRollNow = cuvr.roll();
 
     camRoll = wrapAngle(180 + Number(deviceOrientation) - orientation.roll / degRad);
 
@@ -129,9 +129,9 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
     if (Math.abs(camRoll - camRollNow) > 180) camRollNow += (camRoll > camRollNow) ? 360 : -360;
     camRoll = (1 - friction) * camRoll + friction * camRollNow;
 
-    cuvr.rotateY = wrapAngle(hLookAt);
-    cuvr.rotateX = -vLookAt;
-    cuvr.rotateZ = -wrapAngle(camRoll);
+    cuvr.yaw(wrapAngle(hLookAt));
+    cuvr.pitch(-vLookAt);
+    cuvr.roll(-wrapAngle(camRoll));
   }
 
   /**
