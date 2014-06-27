@@ -6,22 +6,13 @@ function CuVR(opts) {
     id: window.location.pathname,
     updateInterval: 100,
     cubeSize: Math.min(window.innerWidth, window.innerHeight),
-    scrollSensitivity: 0.5,
-    mouse: true,
-    touch: true,
-    horizontalScroll: true,
-    verticalScroll: true,
     cssTransition: true,
     root: opts && opts.root && document.querySelector(opts.root) || document,
     scale: 1
   }, opts);
 
   // public API
-  this.enableControl = enableControl;
-  this.disableControl = disableControl;
   this.scale = opts.scale;
-  this.verticalScroll = opts.verticalScroll;
-  this.horizontalScroll = opts.horizontalScroll;
   this.setCubeSize = setCubeSize;
   this.look = look;
   this.backupExists = backupExists;
@@ -47,7 +38,6 @@ function CuVR(opts) {
   var rotateY = window.sessionStorage && Number(sessionStorage[opts.id + '-cuvrRotateY']) || opts.rotateY || opts.y || opts.yaw || opts.heading || 0;
   var rotateZ = window.sessionStorage && Number(sessionStorage[opts.id + '-cuvrRotateZ']) || opts.rotateZ || opts.z || opts.pitch || opts.attitude || 0;
   var cubeSizeHalf;
-  var prevX = prevY = -1;
   var root = opts.root;
   var view = this.view;
   var cube = this.cube;
@@ -85,9 +75,6 @@ function CuVR(opts) {
       }, 200);
     };
   });
-
-  // Listen mouse & touch events
-  enableControl(opts);
 
   // update view matrix on every updateInterval millis.
   if (opts.updateInterval === 'auto') {
@@ -179,111 +166,6 @@ function CuVR(opts) {
     setCubeSize(size);
   }
 
-  /**
-   * Enable specified controls. controlOpts can be String or Object.
-   */
-  function enableControl(controlOpts) {
-    if (controlOpts === 'mouse' || typeof controlOpts.mouse === 'boolean' && controlOpts.mouse) {
-      opts.mouse = true;
-      view.addEventListener('mousedown', ondown);
-    }
-
-    if (controlOpts === 'touch' || typeof controlOpts.touch === 'boolean' && controlOpts.touch) {
-      opts.touch = true;
-      view.addEventListener('touchstart', ondown);
-    }
-  }
-
-  /**
-   * Disable specified controls (or all controls)
-   */
-  function disableControl(controlOpts) {
-    if (typeof controlOpts === 'undefined') {
-      controlOpts = {
-        mouse: true,
-        touch: true
-      };
-    }
-
-    if (controlOpts === 'mouse' || typeof controlOpts.mouse === 'boolean' && controlOpts.mouse) {
-      opts.mouse = false;
-      view.removeEventListener('mousedown', ondown);
-      root.removeEventListener('mousemove', onmove);
-      root.removeEventListener('mouseup', onup);
-    }
-
-    if (controlOpts === 'touch' || typeof controlOpts.touch === 'boolean' && controlOpts.touch) {
-      opts.touch = false;
-      view.removeEventListener('touchstart', ondown);
-      root.removeEventListener('touchmove', onmove);
-      root.removeEventListener('touchend', onup);
-    }
-  }
-
-  /**
-   * Mouse and Touch support
-   */
-  function ondown(e) {
-    e.preventDefault();
-
-    if (opts.touch) {
-      root.addEventListener('touchmove', onmove);
-      root.addEventListener('touchend', onup);
-    }
-
-    if (opts.mouse) {
-      root.addEventListener('mousemove', onmove);
-      root.addEventListener('mouseup', onup);
-    }
-  }
-
-  function onmove(e) {
-    // if both scroll are disabled do nothing.
-    if (!self.horizontalScroll && !self.verticalScroll) return;
-
-    // normalize mouse and touch event
-    var x = e.clientX || e.changedTouches && e.changedTouches[0].clientX || 0;
-    var y = e.clientY || e.changedTouches && e.changedTouches[0].clientY || 0;
-    var newY = self.rotateY();
-    var newX = self.rotateX();
-
-    if (prevX !== -1 && prevY !== -1) {
-      if (self.horizontalScroll) {
-        var dx = x - prevX;
-        dx = dx / opts.cubeSize * 360 * opts.scrollSensitivity;
-        newY -= dx;
-      }
-
-      if (self.verticalScroll) {
-        var dy = y - prevY;
-        dy = dy / opts.cubeSize * 360 * opts.scrollSensitivity;
-        newX += dy;
-
-        if (newX > 90) {
-          newX = 90;
-        } else if (newX < -90) {
-          newX = -90;
-        }
-      }
-
-      self.rotateY(newY).rotateX(newX);
-      notifyRotateChange();
-    }
-
-    prevX = x;
-    prevY = y;
-  }
-
-  function onup(e) {
-    root.removeEventListener('mousemove', onmove);
-    root.removeEventListener('mouseup', onup);
-    root.removeEventListener('touchmove', onmove);
-    root.removeEventListener('touchend', onup);
-
-    // invalidate prevX,prevY
-    prevX = prevY = -1;
-  }
-
   function setStyle(elm, name, value) {
     var capitalized = name.substr(0, 1).toUpperCase() + name.substr(1);
     venderPrefixes.forEach(function(prefix) {
@@ -329,6 +211,7 @@ function CuVR(opts) {
       return self;
     }
   }
+
   function setOrGetRotateY(arg) {
     if (arg === undefined) {
       return rotateY;
@@ -337,6 +220,7 @@ function CuVR(opts) {
       return self;
     }
   }
+
   function setOrGetRotateZ(arg) {
     if (arg === undefined) {
       return rotateZ;
@@ -344,14 +228,6 @@ function CuVR(opts) {
       rotateZ = arg;
       return self;
     }
-  }
-
-  function notifyRotateChange() {
-    self.emit('rotationChange', {
-      x: rotateX,
-      y: rotateY,
-      z: rotateZ
-    });
   }
 }
 
