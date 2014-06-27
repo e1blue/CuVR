@@ -49,6 +49,7 @@ function CuVR(opts) {
   var root = opts.root;
   var view = root.querySelector('.cuvr-view');
   var cube = root.querySelector('.cuvr-cube');
+  var venderPrefixes = ['webkit', 'moz'];
 
   // plug-in support
   for ( var plugin in CuVR.plugins) {
@@ -273,7 +274,7 @@ function CuVR(opts) {
 
   function setStyle(elm, name, value) {
     var capitalized = name.substr(0, 1).toUpperCase() + name.substr(1);
-    ['webkit', 'moz'].forEach(function(prefix) {
+    venderPrefixes.forEach(function(prefix) {
       elm.style[prefix + capitalized] = value;
     });
     elm.style[name] = value;
