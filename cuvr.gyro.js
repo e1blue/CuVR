@@ -35,6 +35,7 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
   };
   var isVRelative = false, isCamRoll = opts.gyro.camroll, friction = opts.gyro.friction, validSample = false, firstSample = null, hOffset = 0, vOffset = 0, hLookAt = 0, vLookAt = 0, camRoll = 0, DEG2RAD = Math.PI / 180;
   var enabled = false;
+  var touching = false;
 
   function enable() {
     enabled = true;
@@ -80,12 +81,12 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
 
   function handleTouchStart() {
     previous = null;
-    window.removeEventListener('deviceorientation', handleDeviceOrientation);
+    touching = true;
   }
-  
+
   function handleTouchEnd() {
     previous = null;
-    window.addEventListener('deviceorientation', handleDeviceOrientation);
+    touching = false;
   }
 
   function handleDeviceOrientation(e) {
@@ -167,8 +168,10 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
     krpano.view.vlookat = vLookAt;
     krpano.view.camroll = wrapAngle(camRoll);
 
-    cuvr.y(krpano.view.hlookat);
-    cuvr.x(-krpano.view.vlookat);
+    if (!touching) {
+      cuvr.y(krpano.view.hlookat);
+      cuvr.x(-krpano.view.vlookat);
+    }
   }
   function rotateEuler(euler) {
     // This function is based on
