@@ -38,6 +38,8 @@ function CuVR(opts) {
   this.rotateX = setOrGetRotateX;
   this.rotateY = setOrGetRotateY;
   this.rotateZ = setOrGetRotateZ;
+  this.view = opts.root.querySelector('.cuvr-view');
+  this.cube = opts.root.querySelector('.cuvr-cube');
 
   // private variables
   var self = this;
@@ -47,8 +49,8 @@ function CuVR(opts) {
   var cubeSizeHalf;
   var prevX = prevY = -1;
   var root = opts.root;
-  var view = root.querySelector('.cuvr-view');
-  var cube = root.querySelector('.cuvr-cube');
+  var view = this.view;
+  var cube = this.cube;
   var venderPrefixes = ['webkit', 'moz'];
 
   // plug-in support
@@ -237,25 +239,29 @@ function CuVR(opts) {
     // normalize mouse and touch event
     var x = e.clientX || e.changedTouches && e.changedTouches[0].clientX || 0;
     var y = e.clientY || e.changedTouches && e.changedTouches[0].clientY || 0;
+    var newY = self.rotateY();
+    var newX = self.rotateX();
 
     if (prevX !== -1 && prevY !== -1) {
       if (self.horizontalScroll) {
         var dx = x - prevX;
         dx = dx / opts.cubeSize * 360 * opts.scrollSensitivity;
-        rotateY -= dx;
+        newY -= dx;
       }
 
       if (self.verticalScroll) {
         var dy = y - prevY;
         dy = dy / opts.cubeSize * 360 * opts.scrollSensitivity;
-        rotateX += dy;
+        newX += dy;
 
-        if (rotateX > 90) {
-          rotateX = 90;
-        } else if (rotateX < -90) {
-          rotateX = -90;
+        if (newX > 90) {
+          newX = 90;
+        } else if (newX < -90) {
+          newX = -90;
         }
       }
+      
+      self.rotateY(newY).rotateX(newX);
     }
 
     prevX = x;
@@ -284,28 +290,22 @@ function CuVR(opts) {
     if (typeof to === 'string') {
       switch (to) {
       case 'front':
-        rotateX = 0;
-        rotateY = 0;
+        self.rotateX(0).rotateY(0);
         break;
       case 'right':
-        rotateX = 0;
-        rotateY = 90;
+        self.rotateX(0).rotateY(90);
         break;
       case 'back':
-        rotateX = 0;
-        rotateY = 180;
+        self.rotateX(0).rotateY(180);
         break;
       case 'left':
-        rotateX = 0;
-        rotateY = 270;
+        self.rotateX(0).rotateY(270);
         break;
       case 'top':
-        rotateX = 90;
-        rotateY = 0;
+        self.rotateX(90).rotateY(0);
         break;
       case 'bottom':
-        rotateX = -90;
-        rotateY = 0;
+        self.rotateX(-90).rotateY(0);
         break;
       }
     }
@@ -320,6 +320,7 @@ function CuVR(opts) {
       return rotateX;
     } else {
       rotateX = arg;
+      return self;
     }
   }
   function setOrGetRotateY(arg) {
@@ -327,6 +328,7 @@ function CuVR(opts) {
       return rotateY;
     } else {
       rotateY = arg;
+      return self;
     }
   }
   function setOrGetRotateZ(arg) {
@@ -334,6 +336,7 @@ function CuVR(opts) {
       return rotateZ;
     } else {
       rotateZ = arg;
+      return self;
     }
   }
 }
