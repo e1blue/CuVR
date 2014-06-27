@@ -12,13 +12,14 @@ function CuVR(opts) {
     horizontalScroll: true,
     verticalScroll: true,
     cssTransition: true,
-    root: opts && opts.root && document.querySelector(opts.root) || document
+    root: opts && opts.root && document.querySelector(opts.root) || document,
+    scale: 1
   }, opts);
 
   // public API
   this.enableControl = enableControl;
   this.disableControl = disableControl;
-  this.scale = 1;
+  this.scale = opts.scale;
   this.verticalScroll = opts.verticalScroll;
   this.horizontalScroll = opts.horizontalScroll;
   this.setCubeSize = setCubeSize;
@@ -40,14 +41,15 @@ function CuVR(opts) {
 
   // private variables
   var self = this;
-  var rotateX = 0;
-  var rotateY = 0;
-  var rotateZ = 0;
+  var rotateX = window.sessionStorage && Number(sessionStorage[opts.id + '-cuvrRotateX']) || opts.rotateX || opts.x || opts.roll || opts.bank || 0;
+  var rotateY = window.sessionStorage && Number(sessionStorage[opts.id + '-cuvrRotateY']) || opts.rotateY || opts.y || opts.yaw || opts.heading || 0;
+  var rotateZ = window.sessionStorage && Number(sessionStorage[opts.id + '-cuvrRotateZ']) || opts.rotateZ || opts.z || opts.pitch || opts.attitude || 0;
   var cubeSizeHalf;
   var prevX = prevY = -1;
   var root = opts.root;
   var view = root.querySelector('.cuvr-view');
   var cube = root.querySelector('.cuvr-cube');
+  var venderPrefixes = ['webkit', 'moz'];
 
   // plug-in support
   for ( var plugin in CuVR.plugins) {
@@ -106,22 +108,22 @@ function CuVR(opts) {
     });
   } else if (typeof opts.updateInterval === 'number') {
     setInterval(update, opts.updateInterval);
-  }
-
-  // restore from backup
-  if (window.sessionStorage) {
-    rotateX = Number(sessionStorage[opts.id + '-cuvrRotateX']) || 0;
-    rotateY = Number(sessionStorage[opts.id + '-cuvrRotateY']) || 0;
-    rotateZ = Number(sessionStorage[opts.id + '-cuvrRotateZ']) || 0;
+  } else {
+    update();
   }
 
   // enable CSS transition
   if (opts.cssTransition) {
-    setTimeout(function() {
-      setStyle(cube, 'transitionDuration', opts.updateInterval + 'ms');
-    }, opts.updateInterval);
+    if (typeof opts.updateInterval === 'number') {
+      setTimeout(updateTransitionDuration, opts.updateInterval);
+    } else {
+      updateTransitionDuration();
+    }
   }
 
+  /**
+   * Update screen.
+   */
   function update() {
     setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf * self.scale + 'px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) rotateZ(' + rotateZ + 'deg)');
 
@@ -131,6 +133,13 @@ function CuVR(opts) {
       sessionStorage[opts.id + '-cuvrRotateY'] = rotateY;
       sessionStorage[opts.id + '-cuvrRotateZ'] = rotateZ;
     }
+  }
+
+  /**
+   * Update cube's transition-duration style.
+   */
+  function updateTransitionDuration() {
+    setStyle(cube, 'transitionDuration', opts.updateInterval + 'ms');
   }
   /**
    * Set cube size.
@@ -143,7 +152,6 @@ function CuVR(opts) {
     setStyle(view, 'perspective', cubeSizeHalf + 'px');
 
     cube.style.width = cube.style.height = size + 'px';
-    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf + 'px) rotateX(0deg) rotateY(0deg)');
 
     setStyle(root.querySelector('.cuvr-cube .front'), 'transform', 'translateZ(' + -cubeSizeHalf + 'px)');
     setStyle(root.querySelector('.cuvr-cube .right'), 'transform', 'rotateY(-90deg) translateZ(' + -cubeSizeHalf + 'px)');
@@ -266,7 +274,7 @@ function CuVR(opts) {
 
   function setStyle(elm, name, value) {
     var capitalized = name.substr(0, 1).toUpperCase() + name.substr(1);
-    ['webkit', 'moz'].forEach(function(prefix) {
+    venderPrefixes.forEach(function(prefix) {
       elm.style[prefix + capitalized] = value;
     });
     elm.style[name] = value;
@@ -332,7 +340,10 @@ function CuVR(opts) {
 
 CuVR.plugins = {};
 
-CuVR.extend = function(dst, src) {
+/**
+ * Copy all properties from src(s) to dst and return dst.
+ */
+CuVR.extend = function(dst/* , src... */) {
   if (!dst) return dst;
 
   for (var i = 1; i < arguments.length; i++) {
