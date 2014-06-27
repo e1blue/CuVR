@@ -123,18 +123,20 @@ function CuVR(opts) {
     }
   }
 
+  // backup to sessionStorage
+  if (window.sessionStorage) {
+    setInterval(function() {
+      sessionStorage[opts.id + '-cuvrRotateX'] = rotateX;
+      sessionStorage[opts.id + '-cuvrRotateY'] = rotateY;
+      sessionStorage[opts.id + '-cuvrRotateZ'] = rotateZ;
+    }, 500);
+  }
+
   /**
    * Update screen.
    */
   function update() {
     setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf * self.scale + 'px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) rotateZ(' + rotateZ + 'deg)');
-
-    // backup
-    if (window.sessionStorage) {
-      sessionStorage[opts.id + '-cuvrRotateX'] = rotateX;
-      sessionStorage[opts.id + '-cuvrRotateY'] = rotateY;
-      sessionStorage[opts.id + '-cuvrRotateZ'] = rotateZ;
-    }
   }
 
   /**
@@ -236,6 +238,9 @@ function CuVR(opts) {
   }
 
   function onmove(e) {
+    // if both scroll are disabled do nothing.
+    if (!self.horizontalScroll && !self.verticalScroll) return;
+
     // normalize mouse and touch event
     var x = e.clientX || e.changedTouches && e.changedTouches[0].clientX || 0;
     var y = e.clientY || e.changedTouches && e.changedTouches[0].clientY || 0;
@@ -260,8 +265,9 @@ function CuVR(opts) {
           newX = -90;
         }
       }
-      
+
       self.rotateY(newY).rotateX(newX);
+      notifyRotateChange();
     }
 
     prevX = x;
@@ -339,6 +345,14 @@ function CuVR(opts) {
       return self;
     }
   }
+
+  function notifyRotateChange() {
+    self.emit('rotationChange', {
+      x: rotateX,
+      y: rotateY,
+      z: rotateZ
+    });
+  }
 }
 
 CuVR.plugins = {};
@@ -358,4 +372,57 @@ CuVR.extend = function(dst/* , src... */) {
     }
   }
   return dst;
+};
+
+/*
+ * EventEmitter
+ */
+CuVR.prototype.on = function(type, callback) {
+  var self = this;
+
+  if (!self.callbacks) {
+    self.callbacks = {};
+  }
+
+  if (!self.callbacks[type]) {
+    self.callbacks[type] = [];
+  }
+
+  if (self.callbacks[type].indexOf(callback) === -1) {
+    self.callbacks[type].push(callback);
+  }
+
+  return self;
+};
+
+CuVR.prototype.emit = function(type) {
+  var self = this, callbacks, callbacksInType;
+
+  if (!(callbacks = self.callbacks)) return;
+  if (!(callbacksInType = callbacks[type])) return;
+
+  var args = Array.prototype.slice.call(arguments, 1);
+
+  callbacksInType.forEach(function(callback) {
+    callback.apply(self, args);
+  });
+
+  return self;
+};
+
+CuVR.prototype.off = function(type, callback) {
+  var self = this, callbacks, callbacksInType, index;
+
+  if (!(callbacks = self.callbacks)) return;
+  if (!(callbacksInType = callbacks[type])) return;
+
+  if (callback) {
+    if ((index = callbacksInType.indexOf(callback)) !== -1) {
+      callbacksInType.splice(index, 1);
+    }
+  } else {
+    delete callbacks[type];
+  }
+
+  return self;
 };
