@@ -34,7 +34,7 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
     }
   };
   var isVRelative = false, isCamRoll = opts.gyro.camroll, friction = opts.gyro.friction, validSample = false, firstSample = null, hOffset = 0, vOffset = 0, hLookAt = 0, vLookAt = 0, camRoll = 0, DEG2RAD = Math.PI / 180;
-  var enabled = false;
+  var enabled;
   var touching = false;
 
   function enable() {
@@ -46,6 +46,8 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
     cuvr.view.addEventListener('touchstart', handleTouchStart);
     cuvr.view.addEventListener('touchend', handleTouchEnd);
     cuvr.on('rotationChange', handleManualRotation);
+
+    return cuvr;
   }
 
   function disable() {
@@ -55,13 +57,15 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
     cuvr.view.removeEventListener('touchstart', handleTouchStart);
     cuvr.view.removeEventListener('touchend', handleTouchEnd);
     cuvr.off('rotationChange', handleManualRotation);
+
+    return cuvr;
   }
 
   function toggle() {
     if (enabled)
-      disable();
+      return disable();
     else
-      enable();
+      return enable();
   }
 
   var previous;
