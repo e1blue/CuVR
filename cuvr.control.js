@@ -2,6 +2,7 @@
  * CuVR (c) 2014 eje inc. http://www.eje-c.com License: MIT
  */
 CuVR.plugins.Control = function(cuvr, opts) {
+  // options
   opts.control = CuVR.extend({
     enabled: true,
     scrollSensitivity: 0.5,
@@ -9,6 +10,7 @@ CuVR.plugins.Control = function(cuvr, opts) {
     vertical: true,
   }, opts.control);
 
+  // public API
   cuvr.control = {
     enable: enable,
     disable: disable,
@@ -21,7 +23,7 @@ CuVR.plugins.Control = function(cuvr, opts) {
     enable();
   }
 
-  var enabled = false, prevX = prevY = -1, scrollSensitivity = opts.control.scrollSensitivity;
+  var enabled, prevX = prevY = -1, scrollSensitivity = opts.control.scrollSensitivity;
 
   function enable() {
     if (!enabled) {
@@ -30,6 +32,8 @@ CuVR.plugins.Control = function(cuvr, opts) {
       cuvr.view.addEventListener('mousedown', ondown);
       cuvr.view.addEventListener('touchstart', ondown);
     }
+
+    return cuvr;
   }
 
   function disable() {
@@ -39,13 +43,15 @@ CuVR.plugins.Control = function(cuvr, opts) {
       cuvr.view.removeEventListener('mousedown', ondown);
       cuvr.view.removeEventListener('touchstart', ondown);
     }
+
+    return cuvr;
   }
 
   function toggle() {
     if (enabled)
-      disable();
+      return disable();
     else
-      enable();
+      return enable();
   }
 
   /**
