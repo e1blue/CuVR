@@ -6,22 +6,13 @@ function CuVR(opts) {
     id: window.location.pathname,
     updateInterval: 100,
     cubeSize: Math.min(window.innerWidth, window.innerHeight),
-    scrollSensitivity: 0.5,
-    mouse: true,
-    touch: true,
-    horizontalScroll: true,
-    verticalScroll: true,
     cssTransition: true,
     root: opts && opts.root && document.querySelector(opts.root) || document,
     scale: 1
   }, opts);
 
   // public API
-  this.enableControl = enableControl;
-  this.disableControl = disableControl;
   this.scale = opts.scale;
-  this.verticalScroll = opts.verticalScroll;
-  this.horizontalScroll = opts.horizontalScroll;
   this.setCubeSize = setCubeSize;
   this.look = look;
   this.backupExists = backupExists;
@@ -38,6 +29,8 @@ function CuVR(opts) {
   this.rotateX = setOrGetRotateX;
   this.rotateY = setOrGetRotateY;
   this.rotateZ = setOrGetRotateZ;
+  this.view = opts.root.querySelector('.cuvr-view');
+  this.cube = opts.root.querySelector('.cuvr-cube');
 
   // private variables
   var self = this;
@@ -45,10 +38,9 @@ function CuVR(opts) {
   var rotateY = window.sessionStorage && Number(sessionStorage[opts.id + '-cuvrRotateY']) || opts.rotateY || opts.y || opts.yaw || opts.heading || 0;
   var rotateZ = window.sessionStorage && Number(sessionStorage[opts.id + '-cuvrRotateZ']) || opts.rotateZ || opts.z || opts.pitch || opts.attitude || 0;
   var cubeSizeHalf;
-  var prevX = prevY = -1;
   var root = opts.root;
-  var view = root.querySelector('.cuvr-view');
-  var cube = root.querySelector('.cuvr-cube');
+  var view = this.view;
+  var cube = this.cube;
   var venderPrefixes = ['webkit', 'moz'];
 
   // plug-in support
@@ -84,9 +76,6 @@ function CuVR(opts) {
     };
   });
 
-  // Listen mouse & touch events
-  enableControl(opts);
-
   // update view matrix on every updateInterval millis.
   if (opts.updateInterval === 'auto') {
     var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
@@ -121,18 +110,20 @@ function CuVR(opts) {
     }
   }
 
+  // backup to sessionStorage
+  if (window.sessionStorage) {
+    setInterval(function() {
+      sessionStorage[opts.id + '-cuvrRotateX'] = rotateX;
+      sessionStorage[opts.id + '-cuvrRotateY'] = rotateY;
+      sessionStorage[opts.id + '-cuvrRotateZ'] = rotateZ;
+    }, 500);
+  }
+
   /**
    * Update screen.
    */
   function update() {
     setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf * self.scale + 'px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) rotateZ(' + rotateZ + 'deg)');
-
-    // backup
-    if (window.sessionStorage) {
-      sessionStorage[opts.id + '-cuvrRotateX'] = rotateX;
-      sessionStorage[opts.id + '-cuvrRotateY'] = rotateY;
-      sessionStorage[opts.id + '-cuvrRotateZ'] = rotateZ;
-    }
   }
 
   /**
@@ -175,103 +166,6 @@ function CuVR(opts) {
     setCubeSize(size);
   }
 
-  /**
-   * Enable specified controls. controlOpts can be String or Object.
-   */
-  function enableControl(controlOpts) {
-    if (controlOpts === 'mouse' || typeof controlOpts.mouse === 'boolean' && controlOpts.mouse) {
-      opts.mouse = true;
-      view.addEventListener('mousedown', ondown);
-    }
-
-    if (controlOpts === 'touch' || typeof controlOpts.touch === 'boolean' && controlOpts.touch) {
-      opts.touch = true;
-      view.addEventListener('touchstart', ondown);
-    }
-  }
-
-  /**
-   * Disable specified controls (or all controls)
-   */
-  function disableControl(controlOpts) {
-    if (typeof controlOpts === 'undefined') {
-      controlOpts = {
-        mouse: true,
-        touch: true
-      };
-    }
-
-    if (controlOpts === 'mouse' || typeof controlOpts.mouse === 'boolean' && controlOpts.mouse) {
-      opts.mouse = false;
-      view.removeEventListener('mousedown', ondown);
-      root.removeEventListener('mousemove', onmove);
-      root.removeEventListener('mouseup', onup);
-    }
-
-    if (controlOpts === 'touch' || typeof controlOpts.touch === 'boolean' && controlOpts.touch) {
-      opts.touch = false;
-      view.removeEventListener('touchstart', ondown);
-      root.removeEventListener('touchmove', onmove);
-      root.removeEventListener('touchend', onup);
-    }
-  }
-
-  /**
-   * Mouse and Touch support
-   */
-  function ondown(e) {
-    e.preventDefault();
-
-    if (opts.touch) {
-      root.addEventListener('touchmove', onmove);
-      root.addEventListener('touchend', onup);
-    }
-
-    if (opts.mouse) {
-      root.addEventListener('mousemove', onmove);
-      root.addEventListener('mouseup', onup);
-    }
-  }
-
-  function onmove(e) {
-    // normalize mouse and touch event
-    var x = e.clientX || e.changedTouches && e.changedTouches[0].clientX || 0;
-    var y = e.clientY || e.changedTouches && e.changedTouches[0].clientY || 0;
-
-    if (prevX !== -1 && prevY !== -1) {
-      if (self.horizontalScroll) {
-        var dx = x - prevX;
-        dx = dx / opts.cubeSize * 360 * opts.scrollSensitivity;
-        rotateY -= dx;
-      }
-
-      if (self.verticalScroll) {
-        var dy = y - prevY;
-        dy = dy / opts.cubeSize * 360 * opts.scrollSensitivity;
-        rotateX += dy;
-
-        if (rotateX > 90) {
-          rotateX = 90;
-        } else if (rotateX < -90) {
-          rotateX = -90;
-        }
-      }
-    }
-
-    prevX = x;
-    prevY = y;
-  }
-
-  function onup(e) {
-    root.removeEventListener('mousemove', onmove);
-    root.removeEventListener('mouseup', onup);
-    root.removeEventListener('touchmove', onmove);
-    root.removeEventListener('touchend', onup);
-
-    // invalidate prevX,prevY
-    prevX = prevY = -1;
-  }
-
   function setStyle(elm, name, value) {
     var capitalized = name.substr(0, 1).toUpperCase() + name.substr(1);
     venderPrefixes.forEach(function(prefix) {
@@ -284,28 +178,22 @@ function CuVR(opts) {
     if (typeof to === 'string') {
       switch (to) {
       case 'front':
-        rotateX = 0;
-        rotateY = 0;
+        self.rotateX(0).rotateY(0);
         break;
       case 'right':
-        rotateX = 0;
-        rotateY = 90;
+        self.rotateX(0).rotateY(90);
         break;
       case 'back':
-        rotateX = 0;
-        rotateY = 180;
+        self.rotateX(0).rotateY(180);
         break;
       case 'left':
-        rotateX = 0;
-        rotateY = 270;
+        self.rotateX(0).rotateY(270);
         break;
       case 'top':
-        rotateX = 90;
-        rotateY = 0;
+        self.rotateX(90).rotateY(0);
         break;
       case 'bottom':
-        rotateX = -90;
-        rotateY = 0;
+        self.rotateX(-90).rotateY(0);
         break;
       }
     }
@@ -320,20 +208,25 @@ function CuVR(opts) {
       return rotateX;
     } else {
       rotateX = arg;
+      return self;
     }
   }
+
   function setOrGetRotateY(arg) {
     if (arg === undefined) {
       return rotateY;
     } else {
       rotateY = arg;
+      return self;
     }
   }
+
   function setOrGetRotateZ(arg) {
     if (arg === undefined) {
       return rotateZ;
     } else {
       rotateZ = arg;
+      return self;
     }
   }
 }
@@ -355,4 +248,57 @@ CuVR.extend = function(dst/* , src... */) {
     }
   }
   return dst;
+};
+
+/*
+ * EventEmitter
+ */
+CuVR.prototype.on = function(type, callback) {
+  var self = this;
+
+  if (!self.callbacks) {
+    self.callbacks = {};
+  }
+
+  if (!self.callbacks[type]) {
+    self.callbacks[type] = [];
+  }
+
+  if (self.callbacks[type].indexOf(callback) === -1) {
+    self.callbacks[type].push(callback);
+  }
+
+  return self;
+};
+
+CuVR.prototype.emit = function(type) {
+  var self = this, callbacks, callbacksInType;
+
+  if (!(callbacks = self.callbacks)) return;
+  if (!(callbacksInType = callbacks[type])) return;
+
+  var args = Array.prototype.slice.call(arguments, 1);
+
+  callbacksInType.forEach(function(callback) {
+    callback.apply(self, args);
+  });
+
+  return self;
+};
+
+CuVR.prototype.off = function(type, callback) {
+  var self = this, callbacks, callbacksInType, index;
+
+  if (!(callbacks = self.callbacks)) return;
+  if (!(callbacksInType = callbacks[type])) return;
+
+  if (callback) {
+    if ((index = callbacksInType.indexOf(callback)) !== -1) {
+      callbacksInType.splice(index, 1);
+    }
+  } else {
+    delete callbacks[type];
+  }
+
+  return self;
 };
