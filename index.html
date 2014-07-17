@@ -74,7 +74,7 @@
 		</div>
 		<!-- /VR Contents -->
 
-		<button onclick="toggleGyro()" style="position: absolute;left:0;top:0;">
+		<button id="btn-gyro" onclick="toggleGyro()" style="position: absolute;left:0;top:0; display: none;">
 			toggle gyro
 		</button>
 
@@ -97,6 +97,10 @@
 
 			function toggleGyro() {
 				cuvr.gyro.toggle();
+			}
+			
+			if (/mobile/i.test(navigator.userAgent) && window.DeviceOrientationEvent){
+				document.getElementById('btn-gyro').style.display = 'block';
 			}
 		</script>
 	</body>
