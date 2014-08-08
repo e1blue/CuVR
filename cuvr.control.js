@@ -7,7 +7,7 @@ CuVR.plugins.Control = function(cuvr, opts) {
     enabled: true,
     scrollSensitivity: 0.5,
     horizontal: true,
-    vertical: true,
+    vertical: true
   }, opts.control);
 
   // public API

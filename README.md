@@ -7,55 +7,50 @@ Each faces are simple HTML contents. Any content can be put on cubic VR world.
 
 Currently supported only webkit browsers.
 
-## How to
+## Install
 
-### 1. Include CSS
-
-```html
-<link rel="stylesheet" href="cuvr.css" type="text/css"/>
-```
-
-### 2. Include JavaScript
+	bower install cuvr
 
 ```html
-<script type="text/javascript" src="cuvr.js"></script>
-```
-
-### 3. Put HTML
-
-```html
-<div class="cuvr-view">
-  <div class="cuvr-cube">
-    <div class="cuvr-face front">
-      Front contents here
+<html>
+  <head>
+    <!-- 1. include cuvr.css -->
+    <link rel="stylesheet" href="bower_components/cuvr/cuvr.css" type="text/css"/>
+  </head>
+  <body>
+    <!-- 2. VR contents -->
+    <div class="cuvr-view">
+      <div class="cuvr-cube">
+        <div class="cuvr-face front">
+          Front contents here
+        </div>
+        <div class="cuvr-face right">
+          Right contents here
+        </div>
+        <div class="cuvr-face back">
+          Back contents here
+        </div>
+        <div class="cuvr-face left">
+          Left contents here
+        </div>
+        <div class="cuvr-face top">
+          Top contents here
+        </div>
+        <div class="cuvr-face bottom">
+          Bottom contents here
+        </div>
+      </div>
     </div>
-    <div class="cuvr-face right">
-      Right contents here
-    </div>
-    <div class="cuvr-face back">
-      Back contents here
-    </div>
-    <div class="cuvr-face left">
-      Left contents here
-    </div>
-    <div class="cuvr-face top">
-      Top contents here
-    </div>
-    <div class="cuvr-face bottom">
-      Bottom contents here
-    </div>
-  </div>
-</div>
-```
-
-### 4. Call CuVR constructor
-
-```JavaScript
-var cuvr = new CuVR({
-  // this is rendered cube size (px) 
-  cubeSize : 720
-  // and more options...
-});
+    <!-- /VR contents -->
+    <!-- 3. include cuvr.js -->
+    <script src="bower_components/cuvr/cuvr.js"></script>
+    <script src="bower_components/cuvr/cuvr.control.js"></script>
+    <script>
+      // 4. call CuVR constructor
+      var cuvr = new CuVR();
+    </script>
+  </body>
+</html>
 ```
 
 ## API
@@ -65,7 +60,7 @@ var cuvr = new CuVR({
 | Property          | Description | Type       | Default
 | --------          | ----------- | ----       | -------
 | updateInterval    | how often update viewport rotateX & rotateY | Number or 'auto' | 100
-| cubeSize          | size of cube faces       | Number | Math.min(window.innerWidth,window.innerHeight)  
+| cubeSize          | size of cube faces       | Number | Math.min(window.innerWidth,window.innerHeight)
 | scrollSensitivity | amount of scroll by mouse and touch control. if value is set to 1.0 cube rotates 360 degrees with mouse moving from left/top edge to right/bottom edge. | Number | 0.5
 | mouse             | enable mouse control     | Boolean | true
 | touch             | enable touch control     | Boolean | true
@@ -82,34 +77,6 @@ If `updateInterval:'auto'` is specified, CuVR updates frames as fast as possible
 
 In that case, it is prefered to set `cssTransition: false`.
 
-
-### enableControl()
-
-```JavaScript
-// specify multiple
-cuvr.enableControl({
-  mouse : true,
-  touch : true
-});
-
-// or simple
-cuvr.enableControl('mouse');
-cuvr.enableControl('touch');
-```
-
-### disableControl()
-
-```JavaScript
-// specify multiple
-cuvr.disableControl({
-  mouse : true,
-  touch : true
-});
-
-// or simple
-cuvr.disableControl('mouse');
-cuvr.disableControl('touch');
-```
 
 ### setCubeSize(size)
 
@@ -144,7 +111,7 @@ cuvr.z(20);
 // or with yaw,pitch,roll
 cuvr.yaw(90);   // = rotateY
 cuvr.pitch(45); // = rotateZ
-cuvr.roll(0);   // = rotateX 
+cuvr.roll(0);   // = rotateX
 
 // or with heading,attitude,bank
 cuvr.heading(90);  // = rotateY
@@ -157,36 +124,6 @@ var y = cuvr.rotateY();
 var z = cuvr.rotateZ();
 ```
 
-### scale
-
-```JavaScript
-// set
-cuvr.scale = 1.5;
-
-// get
-var scale = cuvr.scale;
-```
-
-### verticalScroll
-
-```JavaScript
-// set
-cuvr.verticalScroll = false;
-
-// get
-var vs = cuvr.verticalScroll;
-```
-
-### horizontalScroll
-
-```JavaScript
-// set
-cuvr.horizontalScroll = false;
-
-// get
-var hs = cuvr.horizontalScroll;
-```
-
 ## Plugins
 
 CuVR plugins must be loaded after cuvr.js.
@@ -194,7 +131,61 @@ CuVR plugins must be loaded after cuvr.js.
 ```HTML
 <script src="./cuvr.js"></script>
 <script src="./cuvr.ANY PLUGIN.js"></script>
-``` 
+```
+
+### cuvr.control.js
+
+Add mouse/touch control behavior.
+
+#### options
+
+```JavaScript
+var cuvr = new CuVR({
+  control: {
+    enabled: true,
+    scrollSensitivity: 0.5,
+    horizontal: true,
+    vertical: true,
+  }
+});
+```
+
+#### API
+
+```JavaScript
+cuvr.control.enable();
+cuvr.control.disable();
+cuvr.control.toggle();
+
+cuvr.control.horizontal = true | false; // enable horizontal scrolling
+cuvr.control.vertical   = true | false; // enable vertical scrolling
+```
+
+### cuvr.gyro.js
+
+Add gyro sensor support. This plugin is in very alpha stage.
+
+#### options
+
+```JavaScript
+var cuvr = new CuVR({
+  gyro: {
+    enabled: true,
+    velastic: 0,
+    vrelative: false,
+    camroll: false,
+    friction: 0.5
+  }
+});
+```
+
+#### API
+
+```JavaScript
+cuvr.gyro.enable();
+cuvr.gyro.disable();
+cuvr.gyro.toggle();
+```
 
 ### cuvr.object.js
 
@@ -212,22 +203,14 @@ Include `cuvr.object.js` and put elements in `div.cuvr-view` and add `cuvr-objec
     <div class="cuvr-face top"></div>
     <div class="cuvr-face bottom"></div>
   </div>
-  
+
   <!-- put elements here. Don't forget to add cuvr-object class. -->
   <img class="cuvr-object" src="yourimage.png">
-  
+
   <!-- set position with data-pos-* -->
   <img class="cuvr-object" src="yourimage.png" data-pos-x="0.5" data-pos-y="-0.25" data-pos-z="-1">
 </div>
 ```
-
-### cuvr.wheel.js
-
-Add mouse wheel scroll scale function.
-
-### cuvr.gyro.js
-
-Add gyro sensor support. This plugin is in very alpha stage.
 
 ## How to create plugin
 
