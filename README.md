@@ -1,7 +1,7 @@
 CuVR
 =====
 
-CuVR is library to build CubicVR Web page. [View sample](http://ejeinc.github.io/CuVR/)
+CuVR is library to build CubicVR Web page. View [sample1](http://ejeinc.github.io/CuVR/), [sample2](http://ejeinc.github.io/CuVR/pantheon.html)
 
 Each faces are simple HTML contents. Any content can be put on cubic VR world.
 
