@@ -1,0 +1,21 @@
+{
+  "name": "CuVR",
+  "main": "cuvr.js",
+  "version": "0.1",
+  "homepage": "https://github.com/ejeinc/CuVR",
+  "authors": [
+    "matsuo <matsuo@eje-c.com>"
+  ],
+  "description": "Cubic VR web page library",
+  "keywords": [
+    "vr"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
