@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+		<title>CuVR sample</title>
+		<link rel="stylesheet" href="./normalize.css" type="text/css" />
+		<link rel="stylesheet" href="./cuvr.css" type="text/css"/>
+		<style type="text/css">
+			.cuvr-view {
+				margin: auto;
+			}
+
+			.cuvr-face.front {
+				background-image: url('./pantheon/front.jpg')
+			}
+
+			.cuvr-face.right {
+				background-image: url('./pantheon/right.jpg')
+			}
+
+			.cuvr-face.back {
+				background-image: url('./pantheon/back.jpg')
+			}
+
+			.cuvr-face.left {
+				background-image: url('./pantheon/left.jpg')
+			}
+
+			.cuvr-face.top {
+				background-image: url('./pantheon/top.jpg')
+			}
+
+			.cuvr-face.bottom {
+				background-image: url('./pantheon/bottom.jpg')
+			}
+		</style>
+	</head>
+	<body>
+		<!-- VR Contents -->
+		<div class="cuvr-view">
+			<div class="cuvr-cube">
+				<div class="cuvr-face front"></div>
+				<div class="cuvr-face right"></div>
+				<div class="cuvr-face back"></div>
+				<div class="cuvr-face left"></div>
+				<div class="cuvr-face top"></div>
+				<div class="cuvr-face bottom"></div>
+			</div>
+		</div>
+		<!-- /VR Contents -->
+
+		<button id="btn-gyro" onclick="toggleGyro()" style="position: absolute;left:0;top:0; display: none;">
+			toggle gyro
+		</button>
+
+		<script src="./cuvr.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./cuvr.control.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./cuvr.wheel.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./cuvr.gyro.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript" charset="utf-8">
+			var cuvr = new CuVR({
+				fullscreen: true,
+				gyro : {
+					enabled : false
+				}
+			});
+
+			function toggleGyro() {
+				cuvr.gyro.toggle();
+			}
+			
+			if (/mobile/i.test(navigator.userAgent) && window.DeviceOrientationEvent){
+				document.getElementById('btn-gyro').style.display = 'block';
+			}
+		</script>
+	</body>
+</html>
