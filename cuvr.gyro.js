@@ -33,33 +33,73 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
       camroll: 0
     }
   };
-  var isVRelative = false, isCamRoll = false, friction = opts.gyro.friction, validSample = false, firstSample = null, hOffset = 0, vOffset = 0, hLookAt = 0, vLookAt = 0, camRoll = 0, degRad = Math.PI / 180;
-  var enabled = false;
+  var isVRelative = false, isCamRoll = opts.gyro.camroll, friction = opts.gyro.friction, validSample = false, firstSample = null, hOffset = 0, vOffset = 0, hLookAt = 0, vLookAt = 0, camRoll = 0, DEG2RAD = Math.PI / 180;
+  var enabled;
+  var touching = false;
 
   function enable() {
     enabled = true;
+    validSample = false;
+    firstSample = null;
     window.addEventListener('deviceorientation', handleDeviceOrientation);
+
+    cuvr.view.addEventListener('touchstart', handleTouchStart);
+    cuvr.view.addEventListener('touchend', handleTouchEnd);
+    cuvr.on('rotationChange', handleManualRotation);
+
+    return cuvr;
   }
 
   function disable() {
     enabled = false;
     window.removeEventListener('deviceorientation', handleDeviceOrientation);
+
+    cuvr.view.removeEventListener('touchstart', handleTouchStart);
+    cuvr.view.removeEventListener('touchend', handleTouchEnd);
+    cuvr.off('rotationChange', handleManualRotation);
+
+    return cuvr;
   }
 
   function toggle() {
     if (enabled)
-      disable();
+      return disable();
     else
-      enable();
+      return enable();
+  }
+
+  var previous;
+
+  function handleManualRotation(e) {
+    if (previous) {
+      var dx = e.x - previous.x;
+      var dy = e.y - previous.y;
+      var dz = e.z - previous.z;
+
+      hOffset += dy;
+      vOffset -= dx;
+    }
+
+    previous = e;
+  }
+
+  function handleTouchStart() {
+    previous = null;
+    touching = true;
+  }
+
+  function handleTouchEnd() {
+    previous = null;
+    touching = false;
   }
 
   function handleDeviceOrientation(e) {
     // Process event.alpha, event.beta and event.gamma
     var deviceOrientation = top.orientation, orientation = rotateEuler({
-      yaw: event["alpha"] * degRad,
-      pitch: event["beta"] * degRad,
-      roll: event["gamma"] * degRad
-    }), yaw = wrapAngle(orientation.yaw / degRad), pitch = orientation.pitch / degRad, altYaw = yaw, factor, hLookAtNow = krpano.view.hlookat, vLookAtNow = krpano.view.vlookat, camRollNow = krpano.view.camroll, hSpeed = hLookAtNow - hLookAt, vSpeed = vLookAtNow - vLookAt;
+      yaw: event["alpha"] * DEG2RAD,
+      pitch: event["beta"] * DEG2RAD,
+      roll: event["gamma"] * DEG2RAD
+    }), yaw = wrapAngle(orientation.yaw / DEG2RAD), pitch = orientation.pitch / DEG2RAD, altYaw = yaw, factor, hLookAtNow = krpano.view.hlookat, vLookAtNow = krpano.view.vlookat, camRollNow = krpano.view.camroll, hSpeed = hLookAtNow - hLookAt, vSpeed = vLookAtNow - vLookAt;
 
     // Ignore all sample untill we get a sample that is different from the first
     // sample
@@ -77,7 +117,7 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
     }
 
     if (isCamRoll) {
-      camRoll = wrapAngle(180 + Number(deviceOrientation) - orientation.roll / degRad);
+      camRoll = wrapAngle(180 + Number(deviceOrientation) - orientation.roll / DEG2RAD);
     }
 
     // Fix gimbal lock
@@ -132,8 +172,10 @@ CuVR.plugins.Gyro = function(cuvr, opts) {
     krpano.view.vlookat = vLookAt;
     krpano.view.camroll = wrapAngle(camRoll);
 
-    cuvr.y(krpano.view.hlookat);
-    cuvr.x(-krpano.view.vlookat);
+    if (!touching) {
+      cuvr.y(krpano.view.hlookat);
+      cuvr.x(-krpano.view.vlookat);
+    }
   }
   function rotateEuler(euler) {
     // This function is based on

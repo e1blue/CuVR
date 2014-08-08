@@ -1,107 +1,92 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
-		<title>CuVR sample</title>
-		<link rel="stylesheet" href="./normalize.css" type="text/css" />
-		<link rel="stylesheet" href="./cuvr.css" type="text/css"/>
-		<style type="text/css">
-			.cuvr-view {
-				margin: auto;
-			}
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+<title>CuVR sample</title>
+<link rel="stylesheet" href="./normalize.css" type="text/css" />
+<link rel="stylesheet" href="./cuvr.css" type="text/css" />
+<style type="text/css">
+.cuvr-view {
+	margin: auto;
+}
 
-			.cuvr-face.front {
-				background-image: url('./img/bg1.png')
-			}
+.cuvr-face.front {
+	background-image: url('./img/bg1.png')
+}
 
-			.cuvr-face.right {
-				background-image: url('./img/bg2.png')
-			}
+.cuvr-face.right {
+	background-image: url('./img/bg2.png')
+}
 
-			.cuvr-face.back {
-				background-image: url('./img/bg3.png')
-			}
+.cuvr-face.back {
+	background-image: url('./img/bg3.png')
+}
 
-			.cuvr-face.left {
-				background-image: url('./img/bg4.png')
-			}
+.cuvr-face.left {
+	background-image: url('./img/bg4.png')
+}
 
-			.cuvr-face.top {
-				background-image: url('./img/bg5.png')
-			}
+.cuvr-face.top {
+	background-image: url('./img/bg5.png')
+}
 
-			.cuvr-face.bottom {
-				background-image: url('./img/bg6.png')
-			}
-		</style>
-	</head>
-	<body>
-		<!-- VR Contents -->
-		<div class="cuvr-view">
-			<div class="cuvr-cube">
-				<div class="cuvr-face front">
-					<p style="text-align:center">
-						Front
-					</p>
-				</div>
-				<div class="cuvr-face right">
-					<p style="text-align:center">
-						Right
-					</p>
-				</div>
-				<div class="cuvr-face back">
-					<p style="text-align:center">
-						Back
-					</p>
-				</div>
-				<div class="cuvr-face left">
-					<p style="text-align:center">
-						Left
-					</p>
-				</div>
-				<div class="cuvr-face top">
-					<p style="text-align:center">
-						Top
-					</p>
-				</div>
-				<div class="cuvr-face bottom">
-					<p style="text-align:center">
-						Bottom
-					</p>
-				</div>
-			</div>
-		</div>
-		<!-- /VR Contents -->
+.cuvr-face.bottom {
+	background-image: url('./img/bg6.png')
+}
+</style>
+</head>
+<body>
+  <!-- VR Contents -->
+  <div class="cuvr-view">
+    <div class="cuvr-cube">
+      <div class="cuvr-face front">
+        <p style="text-align: center">Front</p>
+      </div>
+      <div class="cuvr-face right">
+        <p style="text-align: center">Right</p>
+      </div>
+      <div class="cuvr-face back">
+        <p style="text-align: center">Back</p>
+      </div>
+      <div class="cuvr-face left">
+        <p style="text-align: center">Left</p>
+      </div>
+      <div class="cuvr-face top">
+        <p style="text-align: center">Top</p>
+      </div>
+      <div class="cuvr-face bottom">
+        <p style="text-align: center">Bottom</p>
+      </div>
+    </div>
+  </div>
+  <!-- /VR Contents -->
 
-		<button id="btn-gyro" onclick="toggleGyro()" style="position: absolute;left:0;top:0; display: none;">
-			toggle gyro
-		</button>
+  <button id="btn-gyro" onclick="toggleGyro()" style="position: absolute; left: 0; top: 0; display: none;">toggle gyro</button>
 
-		<footer style="position: fixed;bottom: 0; left:0;right:0; background-color: rgba(0,0,0,0.1)">
-			<p style="text-align: center; text-shadow: 1px 1px 3px #ddd">
-				Texture images are from <a href="http://en.wikipedia.org/wiki/File:Panorama_cube_map.png">Wikipedia</a>. These are licensed under the <a href="http://creativecommons.org/licenses/by-sa/3.0/deed.en">Creative Commons Attribution-Share Alike 3.0 Unported license</a>.
-			</p>
-		</footer>
+  <footer style="position: fixed; bottom: 0; left: 0; right: 0; background-color: rgba(0, 0, 0, 0.1)">
+    <p style="text-align: center; text-shadow: 1px 1px 3px #ddd">
+      Texture images are from <a href="http://en.wikipedia.org/wiki/File:Panorama_cube_map.png">Wikipedia</a>. These are licensed under the <a href="http://creativecommons.org/licenses/by-sa/3.0/deed.en">Creative Commons Attribution-Share Alike 3.0 Unported license</a>.
+    </p>
+  </footer>
 
-		<script src="./cuvr.js" type="text/javascript" charset="utf-8"></script>
-		<script src="./cuvr.control.js" type="text/javascript" charset="utf-8"></script>
-		<script src="./cuvr.wheel.js" type="text/javascript" charset="utf-8"></script>
-		<script src="./cuvr.gyro.js" type="text/javascript" charset="utf-8"></script>
-		<script type="text/javascript" charset="utf-8">
-			var cuvr = new CuVR({
-				gyro : {
-					enabled : false
-				}
-			});
+  <script src="./cuvr.js" type="text/javascript" charset="utf-8"></script>
+  <script src="./cuvr.control.js" type="text/javascript" charset="utf-8"></script>
+  <script src="./cuvr.gyro.js" type="text/javascript" charset="utf-8"></script>
+  <script type="text/javascript" charset="utf-8">
+      var cuvr = new CuVR({
+        gyro: {
+          enabled: false
+        }
+      });
 
-			function toggleGyro() {
-				cuvr.gyro.toggle();
-			}
-			
-			if (/mobile/i.test(navigator.userAgent) && window.DeviceOrientationEvent){
-				document.getElementById('btn-gyro').style.display = 'block';
-			}
-		</script>
-	</body>
+      function toggleGyro() {
+        cuvr.gyro.toggle();
+      }
+
+      if (/mobile/i.test(navigator.userAgent) && window.DeviceOrientationEvent) {
+        document.getElementById('btn-gyro').style.display = 'block';
+      }
+    </script>
+</body>
 </html>
