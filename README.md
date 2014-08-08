@@ -5,11 +5,15 @@ CuVR is library to build CubicVR Web page. View [sample1](http://ejeinc.github.i
 
 Each faces are simple HTML contents. Any content can be put on cubic VR world.
 
-Currently supported only webkit browsers.
+Supported browser is only Chrome. but other browser also works...? Of course, except IE :)
 
 ## Install
 
-	bower install cuvr
+Recommended way is with bower.
+
+```sh
+$ bower install cuvr
+```
 
 ```html
 <html>
