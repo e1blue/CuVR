@@ -7,6 +7,7 @@ function CuVR(opts) {
     updateInterval: 100,
     cubeSize: Math.min(window.innerWidth, window.innerHeight),
     cssTransition: true,
+    fullscreen: false,
     root: opts && opts.root && document.querySelector(opts.root) || document
   }, opts);
 
@@ -38,7 +39,7 @@ function CuVR(opts) {
   }
 
   // fullscreen option
-  if (!!opts.fullscreen) {
+  if (opts.fullscreen) {
     setCubeSizeToFullscreen();
     window.addEventListener('resize', setCubeSizeToFullscreen);
 
