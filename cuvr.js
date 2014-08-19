@@ -7,28 +7,18 @@ function CuVR(opts) {
     updateInterval: 100,
     cubeSize: Math.min(window.innerWidth, window.innerHeight),
     cssTransition: true,
-    root: opts && opts.root && document.querySelector(opts.root) || document,
-    scale: 1
+    fullscreen: false,
+    root: opts && opts.root && document.querySelector(opts.root) || document
   }, opts);
 
   // public API
-  this.scale = opts.scale;
   this.setCubeSize = setCubeSize;
   this.look = look;
   this.backupExists = backupExists;
   this.update = update;
-  this.heading = setOrGetRotateY;
-  this.attitude = setOrGetRotateZ;
-  this.bank = setOrGetRotateX;
-  this.yaw = setOrGetRotateY;
-  this.pitch = setOrGetRotateZ;
-  this.roll = setOrGetRotateX;
-  this.x = setOrGetRotateX;
-  this.y = setOrGetRotateY;
-  this.z = setOrGetRotateZ;
-  this.rotateX = setOrGetRotateX;
-  this.rotateY = setOrGetRotateY;
-  this.rotateZ = setOrGetRotateZ;
+  this.heading = this.yaw = this.y = this.rotateY = setOrGetRotateY;
+  this.attitude = this.pitch = this.z = this.rotateZ = setOrGetRotateZ;
+  this.bank = this.roll = this.x = this.rotateX = setOrGetRotateX;
   this.view = opts.root.querySelector('.cuvr-view');
   this.cube = opts.root.querySelector('.cuvr-cube');
 
@@ -45,11 +35,11 @@ function CuVR(opts) {
 
   // plug-in support
   for ( var plugin in CuVR.plugins) {
-    CuVR.plugins[plugin](this, opts);
+    CuVR.plugins[plugin](self, opts);
   }
 
   // fullscreen option
-  if (!!opts.fullscreen) {
+  if (opts.fullscreen) {
     setCubeSizeToFullscreen();
     window.addEventListener('resize', setCubeSizeToFullscreen);
 
@@ -76,13 +66,13 @@ function CuVR(opts) {
     };
   });
 
-  // update view matrix on every updateInterval millis.
-  if (opts.updateInterval === 'auto') {
-    var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-
+  var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+  if (requestAnimationFrame && opts.updateInterval === 'auto') {
+    // update view matrix on every animation frame
+    var prevTime;
     requestAnimationFrame(function _loop(timestamp) {
-      if (_loop.prevTime) {
-        var dt = timestamp - _loop.prevTime;
+      if (prevTime) {
+        var dt = timestamp - prevTime;
 
         // apply css transition
         if (opts.cssTransition) {
@@ -92,12 +82,14 @@ function CuVR(opts) {
         update();
       }
 
-      _loop.prevTime = timestamp;
+      prevTime = timestamp;
       requestAnimationFrame(_loop);
     });
   } else if (typeof opts.updateInterval === 'number') {
+    // update view matrix on every updateInterval millis.
     setInterval(update, opts.updateInterval);
   } else {
+    // apply initial position
     update();
   }
 
@@ -110,7 +102,7 @@ function CuVR(opts) {
     }
   }
 
-  // backup to sessionStorage
+  // backup current rotation to sessionStorage
   if (window.sessionStorage) {
     setInterval(function() {
       sessionStorage[opts.id + '-cuvrRotateX'] = rotateX;
@@ -123,7 +115,7 @@ function CuVR(opts) {
    * Update screen.
    */
   function update() {
-    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf * self.scale + 'px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) rotateZ(' + rotateZ + 'deg)');
+    setStyle(cube, 'transform', 'translateZ(' + cubeSizeHalf + 'px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) rotateZ(' + rotateZ + 'deg)');
   }
 
   /**
@@ -132,6 +124,7 @@ function CuVR(opts) {
   function updateTransitionDuration() {
     setStyle(cube, 'transitionDuration', opts.updateInterval + 'ms');
   }
+
   /**
    * Set cube size.
    */
@@ -174,31 +167,31 @@ function CuVR(opts) {
     elm.style[name] = value;
   }
 
+  /**
+   * Set view point to front,right,back,left,top,bottom.
+   */
   function look(to) {
-    if (typeof to === 'string') {
-      switch (to) {
-      case 'front':
-        self.rotateX(0).rotateY(0);
-        break;
-      case 'right':
-        self.rotateX(0).rotateY(90);
-        break;
-      case 'back':
-        self.rotateX(0).rotateY(180);
-        break;
-      case 'left':
-        self.rotateX(0).rotateY(270);
-        break;
-      case 'top':
-        self.rotateX(90).rotateY(0);
-        break;
-      case 'bottom':
-        self.rotateX(-90).rotateY(0);
-        break;
-      }
+    switch (to) {
+    case 'front':
+      return self.rotateX(0).rotateY(0);
+    case 'right':
+      return self.rotateX(0).rotateY(90);
+    case 'back':
+      return self.rotateX(0).rotateY(180);
+    case 'left':
+      return self.rotateX(0).rotateY(270);
+    case 'top':
+      return self.rotateX(90).rotateY(0);
+    case 'bottom':
+      return self.rotateX(-90).rotateY(0);
     }
+
+    return self;
   }
 
+  /**
+   * Check previous view point.
+   */
   function backupExists() {
     return window.sessionStorage && sessionStorage[opts.id + '-cuvrRotateX'] && sessionStorage[opts.id + '-cuvrRotateY'] && sessionStorage[opts.id + '-cuvrRotateZ'];
   }
