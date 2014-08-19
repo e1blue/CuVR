@@ -61,35 +61,30 @@ $ bower install cuvr
 
 ### Constructor options
 
-| Property          | Description | Type       | Default
-| --------          | ----------- | ----       | -------
-| updateInterval    | how often update viewport rotateX & rotateY | Number or 'auto' | 100
-| cubeSize          | size of cube faces       | Number | Math.min(window.innerWidth,window.innerHeight)
-| scrollSensitivity | amount of scroll by mouse and touch control. if value is set to 1.0 cube rotates 360 degrees with mouse moving from left/top edge to right/bottom edge. | Number | 0.5
-| mouse             | enable mouse control     | Boolean | true
-| touch             | enable touch control     | Boolean | true
-| horizontalScroll  | enable horizontal scroll | Boolean | true
-| verticalScroll    | enable vertical scroll   | Boolean | true
+| Property          | Description              | Type    | Default
+| --------          | -----------              | ----    | -------
+| updateInterval    | how often update view    | Number or 'auto' | 100
+| cubeSize          | size of cube faces       | Number  | Math.min(window.innerWidth,window.innerHeight)
 | cssTransition     | enable css transition    | Boolean | true
 | fullscreen        | enable fullscreen mode   | Boolean | true
 | rotateX           | init rotateX             | Number  | 0
 | rotateY           | init rotateY             | Number  | 0
 | rotateZ           | init rotateZ             | Number  | 0
-| scale             | init scale               | Number  | 1
 
 If `updateInterval:'auto'` is specified, CuVR updates frames as fast as possible by calling `requestAnimationFrame` continually.
 
 In that case, it is prefered to set `cssTransition: false`.
 
+### Instance methods
 
-### setCubeSize(size)
+#### setCubeSize(size)
 
 ```JavaScript
 // set cube size to 50% but limit up to 500px
 cuvr.setCubeSize(Math.min(500, window.innerWidth / 2));
 ```
 
-### look(to)
+#### look(to)
 
 ```JavaScript
 cuvr.look('front');
@@ -100,9 +95,10 @@ cuvr.look('top');
 cuvr.look('bottom');
 ```
 
-### get & set rotation values
+#### getter & setter
 
 ```JavaScript
+// set rotation values
 cuvr.rotateX(40);
 cuvr.rotateY(60);
 cuvr.rotateZ(20);
@@ -126,6 +122,8 @@ cuvr.bank(0);      // = rotateX
 var x = cuvr.rotateX();
 var y = cuvr.rotateY();
 var z = cuvr.rotateZ();
+
+// other alias versions also work
 ```
 
 ## Plugins
@@ -134,7 +132,7 @@ CuVR plugins must be loaded after cuvr.js.
 
 ```HTML
 <script src="./cuvr.js"></script>
-<script src="./cuvr.ANY PLUGIN.js"></script>
+<script src="./cuvr.PLUGIN.js"></script>
 ```
 
 ### cuvr.control.js
@@ -161,8 +159,8 @@ cuvr.control.enable();
 cuvr.control.disable();
 cuvr.control.toggle();
 
-cuvr.control.horizontal = true | false; // enable horizontal scrolling
-cuvr.control.vertical   = true | false; // enable vertical scrolling
+cuvr.control.horizontal = true | false; // enable | disable horizontal scrolling
+cuvr.control.vertical   = true | false; // enable | disable vertical scrolling
 ```
 
 ### cuvr.gyro.js
